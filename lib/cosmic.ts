@@ -208,11 +208,26 @@ export async function getUserById(userId: string) {
   }
 }
 
+// Helper function to format date as YYYY-MM-DD for Cosmic date fields
+function formatDateForCosmic(date: Date): string {
+  const year = date.getFullYear()
+  const month = String(date.getMonth() + 1).padStart(2, '0')
+  const day = String(date.getDate()).padStart(2, '0')
+  return `${year}-${month}-${day}`
+}
+
 // Create a new user
 export async function createUser(name: string, email: string, passwordHash: string) {
   try {
-    // Changed: Added more detailed logging and error context
-    console.log('Creating user with:', { name, email, hasPassword: !!passwordHash })
+    // Changed: Format date as YYYY-MM-DD instead of ISO string for Cosmic date field
+    const createdDate = formatDateForCosmic(new Date())
+    
+    console.log('Creating user with:', { 
+      name, 
+      email, 
+      hasPassword: !!passwordHash,
+      createdDate 
+    })
     
     const response = await cosmic.objects.insertOne({
       title: name,
@@ -221,14 +236,14 @@ export async function createUser(name: string, email: string, passwordHash: stri
         name,
         email,
         password_hash: passwordHash,
-        created_date: new Date().toISOString()
+        created_date: createdDate // Changed: Use YYYY-MM-DD format
       }
     })
     
     console.log('User created successfully:', response.object.id)
     return response.object
   } catch (error) {
-    // Changed: Enhanced error logging with full error details
+    // Enhanced error logging with full error details
     console.error('Failed to create user - Full error:', {
       error,
       message: error instanceof Error ? error.message : 'Unknown error',
@@ -259,9 +274,12 @@ export async function updateUserProfile(userId: string, updates: {
 // Update last login time
 export async function updateLastLogin(userId: string) {
   try {
+    // Changed: Format date as YYYY-MM-DD for Cosmic date field
+    const lastLoginDate = formatDateForCosmic(new Date())
+    
     await cosmic.objects.updateOne(userId, {
       metadata: {
-        last_login: new Date().toISOString()
+        last_login: lastLoginDate // Changed: Use YYYY-MM-DD format
       }
     })
   } catch (error) {
