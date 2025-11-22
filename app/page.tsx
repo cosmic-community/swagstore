@@ -36,7 +36,7 @@ export default async function Home() {
               {heroSubtitle}
             </p>
             <a
-              href="#products"
+              href="/products"
               className="inline-block bg-white text-blue-600 px-8 py-3 rounded-lg font-semibold hover:bg-blue-50 transition-colors"
             >
               Shop Now
@@ -73,13 +73,24 @@ export default async function Home() {
         </section>
       )}
 
-      {/* All Products */}
-      <section id="products" className="py-16 bg-gray-50">
+      {/* Recent Products Preview */}
+      <section className="py-16 bg-gray-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <h2 className="text-3xl font-bold mb-8 text-center">All Products</h2>
+          <div className="flex justify-between items-center mb-8">
+            <h2 className="text-3xl font-bold">Recent Products</h2>
+            <a
+              href="/products"
+              className="text-blue-600 hover:text-blue-800 font-medium flex items-center gap-2"
+            >
+              View All
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+              </svg>
+            </a>
+          </div>
           {products.length > 0 ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
-              {products.map((product: Product) => (
+              {products.slice(0, 8).map((product: Product) => (
                 <ProductCard key={product.id} product={product as Product} />
               ))}
             </div>
