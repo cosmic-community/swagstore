@@ -1,22 +1,15 @@
 'use client'
 
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react'
+import { createContext, useContext, useState, useEffect, ReactNode } from 'react'
 import { User } from '@/types'
 
-// Changed: Added AuthResult interface for login/signup return values
-interface AuthResult {
-  success: boolean
-  error?: string
-}
-
-interface AuthContextType {
+export interface AuthContextType {
   user: User | null
-  isLoading: boolean
-  login: (email: string, password: string) => Promise<AuthResult>
-  signup: (name: string, email: string, password: string) => Promise<AuthResult>
+  login: (email: string, password: string) => Promise<{ success: boolean; error?: string }>
   logout: () => Promise<void>
-  refreshSession: () => Promise<void>
-  refreshUser: () => Promise<void> // Changed: Added refreshUser method
+  signup: (name: string, email: string, password: string) => Promise<{ success: boolean; error?: string }>
+  refreshUser: () => Promise<void>
+  isLoading: boolean
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
@@ -25,34 +18,42 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null)
   const [isLoading, setIsLoading] = useState(true)
 
-  // Changed: Load session from cookie on mount and after navigation
+  // Check for existing session on mount
   useEffect(() => {
-    refreshSession()
+    checkSession()
   }, [])
 
-  const refreshSession = async () => {
+  const checkSession = async () => {
     try {
-      setIsLoading(true)
       const response = await fetch('/api/auth/session')
-      
       if (response.ok) {
         const data = await response.json()
-        setUser(data.user)
-      } else {
-        setUser(null)
+        if (data.user) {
+          setUser(data.user)
+        }
       }
     } catch (error) {
-      console.error('Failed to refresh session:', error)
-      setUser(null)
+      console.error('Failed to check session:', error)
     } finally {
       setIsLoading(false)
     }
   }
 
-  // Changed: Added refreshUser as alias for refreshSession
-  const refreshUser = refreshSession
+  const refreshUser = async () => {
+    try {
+      const response = await fetch('/api/auth/session')
+      if (response.ok) {
+        const data = await response.json()
+        if (data.user) {
+          setUser(data.user)
+        }
+      }
+    } catch (error) {
+      console.error('Failed to refresh user:', error)
+    }
+  }
 
-  const login = async (email: string, password: string): Promise<AuthResult> => {
+  const login = async (email: string, password: string): Promise<{ success: boolean; error?: string }> => {
     try {
       const response = await fetch('/api/auth/login', {
         method: 'POST',
@@ -60,20 +61,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         body: JSON.stringify({ email, password })
       })
 
-      if (!response.ok) {
-        const error = await response.json()
-        return { success: false, error: error.error || 'Login failed' }
+      const data = await response.json()
+
+      if (response.ok && data.user) {
+        setUser(data.user)
+        return { success: true }
       }
 
-      const data = await response.json()
-      setUser(data.user)
-      return { success: true }
+      return { success: false, error: data.error || 'Login failed' }
     } catch (error) {
-      return { success: false, error: 'Login failed. Please try again.' }
+      console.error('Login error:', error)
+      return { success: false, error: 'An error occurred during login' }
     }
   }
 
-  const signup = async (name: string, email: string, password: string): Promise<AuthResult> => {
+  const signup = async (name: string, email: string, password: string): Promise<{ success: boolean; error?: string }> => {
     try {
       const response = await fetch('/api/auth/signup', {
         method: 'POST',
@@ -81,26 +83,31 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         body: JSON.stringify({ name, email, password })
       })
 
-      if (!response.ok) {
-        const error = await response.json()
-        return { success: false, error: error.error || 'Signup failed' }
+      const data = await response.json()
+
+      if (response.ok && data.user) {
+        setUser(data.user)
+        return { success: true }
       }
 
-      const data = await response.json()
-      setUser(data.user)
-      return { success: true }
+      return { success: false, error: data.error || 'Signup failed' }
     } catch (error) {
-      return { success: false, error: 'Signup failed. Please try again.' }
+      console.error('Signup error:', error)
+      return { success: false, error: 'An error occurred during signup' }
     }
   }
 
   const logout = async () => {
-    await fetch('/api/auth/logout', { method: 'POST' })
-    setUser(null)
+    try {
+      await fetch('/api/auth/logout', { method: 'POST' })
+      setUser(null)
+    } catch (error) {
+      console.error('Logout error:', error)
+    }
   }
 
   return (
-    <AuthContext.Provider value={{ user, isLoading, login, signup, logout, refreshSession, refreshUser }}>
+    <AuthContext.Provider value={{ user, login, logout, signup, refreshUser, isLoading }}>
       {children}
     </AuthContext.Provider>
   )

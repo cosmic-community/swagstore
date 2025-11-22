@@ -1,4 +1,5 @@
 import { createBucketClient } from '@cosmicjs/sdk'
+import { OrderItem } from '@/types'
 
 export const cosmic = createBucketClient({
   bucketSlug: process.env.COSMIC_BUCKET_SLUG as string,
@@ -304,6 +305,55 @@ export async function updateLastLogin(userId: string) {
 }
 
 // Order functions
+
+// Create a new order
+export async function createOrder(
+  userId: string,
+  orderNumber: string,
+  items: OrderItem[],
+  subtotal: number,
+  shipping: number,
+  tax: number,
+  total: number,
+  shippingAddress?: {
+    name: string
+    address_line1: string
+    address_line2?: string
+    city: string
+    state: string
+    postal_code: string
+    country: string
+  }
+) {
+  try {
+    const orderDate = formatDateForCosmic(new Date())
+    
+    const response = await cosmic.objects.insertOne({
+      title: `Order ${orderNumber}`,
+      type: 'orders',
+      metadata: {
+        user: userId,
+        order_number: orderNumber,
+        order_date: orderDate,
+        status: {
+          key: 'Pending',
+          value: 'Pending'
+        },
+        items,
+        subtotal,
+        shipping,
+        tax,
+        total,
+        shipping_address: shippingAddress
+      }
+    })
+    
+    return response.object
+  } catch (error) {
+    console.error('Failed to create order:', error)
+    throw new Error('Failed to create order')
+  }
+}
 
 // Get orders by user ID
 export async function getOrdersByUserId(userId: string) {

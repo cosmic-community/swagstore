@@ -1,24 +1,24 @@
-import { NextResponse } from 'next/server'
-import { getSession } from '@/lib/auth'
+import { NextRequest, NextResponse } from 'next/server'
+import { verifyAuth } from '@/lib/auth'
 import { getOrdersByUserId } from '@/lib/cosmic'
 
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
-    const session = await getSession()
-    
-    if (!session) {
+    // Verify authentication
+    const authResult = await verifyAuth(request)
+    if (!authResult.isValid || !authResult.userId) {
       return NextResponse.json(
-        { error: 'Not authenticated' },
+        { error: 'Unauthorized' },
         { status: 401 }
       )
     }
 
-    // Get orders for the logged-in user
-    const orders = await getOrdersByUserId(session.userId)
-    
+    // Fetch orders for the user
+    const orders = await getOrdersByUserId(authResult.userId)
+
     return NextResponse.json({ orders })
   } catch (error) {
-    console.error('Orders fetch error:', error)
+    console.error('Failed to fetch orders:', error)
     return NextResponse.json(
       { error: 'Failed to fetch orders' },
       { status: 500 }
