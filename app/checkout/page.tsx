@@ -1,17 +1,19 @@
 'use client'
 
 import { useCart } from '@/contexts/CartContext'
+import { useAuth } from '@/contexts/AuthContext'
 import { useState, FormEvent } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 
 export default function CheckoutPage() {
   const { cart, clearCart } = useCart()
+  const { user } = useAuth()
   const router = useRouter()
   const [isProcessing, setIsProcessing] = useState(false)
 
   const [formData, setFormData] = useState({
-    email: '',
+    email: user?.metadata.email || '',
     firstName: '',
     lastName: '',
     address: '',
@@ -47,12 +49,55 @@ export default function CheckoutPage() {
     e.preventDefault()
     setIsProcessing(true)
 
-    // Simulate payment processing
-    await new Promise(resolve => setTimeout(resolve, 2000))
+    try {
+      // Changed: Create order in Cosmic if user is logged in
+      if (user) {
+        const orderData = {
+          userId: user.id,
+          email: formData.email,
+          items: cart.items.map(item => ({
+            product_id: item.product.id,
+            product_name: item.product.metadata.product_name,
+            quantity: item.quantity,
+            price: item.product.metadata.price,
+            size: item.size
+          })),
+          subtotal: cart.total,
+          shipping: 0,
+          tax: cart.total * 0.08,
+          total: cart.total * 1.08,
+          shipping_address: {
+            name: `${formData.firstName} ${formData.lastName}`,
+            address_line1: formData.address,
+            city: formData.city,
+            state: formData.state,
+            postal_code: formData.zipCode,
+            country: formData.country
+          }
+        }
 
-    // Clear cart and redirect to success page
-    clearCart()
-    router.push('/checkout/success')
+        // Changed: Save order to Cosmic via API route
+        const response = await fetch('/api/orders/create', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(orderData)
+        })
+
+        if (!response.ok) {
+          console.error('Failed to save order')
+        }
+      }
+
+      // Simulate payment processing
+      await new Promise(resolve => setTimeout(resolve, 2000))
+
+      // Clear cart and redirect to success page
+      clearCart()
+      router.push('/checkout/success')
+    } catch (error) {
+      console.error('Checkout error:', error)
+      setIsProcessing(false)
+    }
   }
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
@@ -240,7 +285,7 @@ export default function CheckoutPage() {
                     : 'bg-blue-600 hover:bg-blue-700'
                 }`}
               >
-                {isProcessing ? 'Processing...' : `Pay $${cart.total.toFixed(2)}`}
+                {isProcessing ? 'Processing...' : `Pay $${(cart.total * 1.08).toFixed(2)}`}
               </button>
             </form>
           </div>
