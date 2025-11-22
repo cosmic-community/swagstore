@@ -1,10 +1,16 @@
+import Link from 'next/link'
 import { getAboutPage } from '@/lib/cosmic'
 import { AboutPage } from '@/types'
 import { Metadata } from 'next'
 
 export const metadata: Metadata = {
   title: 'About Us - SwagStore',
-  description: 'Learn more about SwagStore and our mission to provide premium branded merchandise'
+  description: 'Learn more about SwagStore and our mission to provide premium branded merchandise for businesses of all sizes.',
+  openGraph: {
+    title: 'About Us - SwagStore',
+    description: 'Learn more about SwagStore and our mission',
+    type: 'website',
+  },
 }
 
 export default async function About() {
@@ -128,12 +134,12 @@ export default async function About() {
           <p className="text-xl mb-8 text-blue-100">
             Explore our collection of premium branded merchandise
           </p>
-          <a
+          <Link
             href="/products"
             className="inline-block bg-white text-blue-600 px-8 py-3 rounded-lg font-semibold hover:bg-blue-50 transition-colors"
           >
             Shop Now
-          </a>
+          </Link>
         </div>
       </section>
     </div>

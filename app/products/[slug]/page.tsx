@@ -1,14 +1,42 @@
 // app/products/[slug]/page.tsx
+import Link from 'next/link'
 import { getProduct, getProductReviews } from '@/lib/cosmic'
 import { Product, Review } from '@/types'
 import { notFound } from 'next/navigation'
 import ReviewCard from '@/components/ReviewCard'
 import AddToCartButton from '@/components/AddToCartButton'
+import { Metadata } from 'next'
 
 interface ProductPageProps {
   params: Promise<{
     slug: string
   }>
+}
+
+export async function generateMetadata({ params }: ProductPageProps): Promise<Metadata> {
+  const { slug } = await params
+  const product = await getProduct(slug) as Product | null
+  
+  if (!product) {
+    return {
+      title: 'Product Not Found - SwagStore',
+    }
+  }
+
+  const primaryImage = product.metadata.product_images?.[0]
+
+  return {
+    title: `${product.metadata.product_name} - SwagStore`,
+    description: product.metadata.description || `Shop ${product.metadata.product_name} at SwagStore`,
+    openGraph: {
+      title: product.metadata.product_name,
+      description: product.metadata.description || `Shop ${product.metadata.product_name}`,
+      type: 'website',
+      images: primaryImage?.imgix_url ? [{
+        url: `${primaryImage.imgix_url}?w=1200&h=630&fit=crop&auto=format,compress`,
+      }] : undefined,
+    },
+  }
 }
 
 export default async function ProductPage({ params }: ProductPageProps) {
@@ -71,12 +99,12 @@ export default async function ProductPage({ params }: ProductPageProps) {
               <div>
                 <h1 className="text-3xl font-bold mb-2">{product.metadata.product_name}</h1>
                 {product.metadata.collection && (
-                  <a
+                  <Link
                     href={`/collections/${product.metadata.collection.slug}`}
                     className="text-blue-600 hover:text-blue-800 font-medium"
                   >
                     {product.metadata.collection.title}
-                  </a>
+                  </Link>
                 )}
               </div>
 

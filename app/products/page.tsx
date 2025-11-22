@@ -1,6 +1,17 @@
 import { getProducts } from '@/lib/cosmic'
 import ProductCard from '@/components/ProductCard'
 import { Product } from '@/types'
+import { Metadata } from 'next'
+
+export const metadata: Metadata = {
+  title: 'All Products - SwagStore',
+  description: 'Browse our complete collection of premium branded merchandise. Find the perfect products for your business needs.',
+  openGraph: {
+    title: 'All Products - SwagStore',
+    description: 'Browse our complete collection of premium branded merchandise',
+    type: 'website',
+  },
+}
 
 export default async function ProductsPage() {
   const products = await getProducts()

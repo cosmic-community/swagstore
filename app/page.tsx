@@ -1,7 +1,19 @@
+import Link from 'next/link'
 import { getProducts, getCollections, getFeaturedProducts, getHomepageSettings } from '@/lib/cosmic'
 import ProductCard from '@/components/ProductCard'
 import CollectionCard from '@/components/CollectionCard'
 import { Product, Collection, HomepageSettings } from '@/types'
+import { Metadata } from 'next'
+
+export const metadata: Metadata = {
+  title: 'SwagStore - Premium Branded Merchandise',
+  description: 'Shop our collection of premium branded apparel and accessories. High-quality products for your business and personal use.',
+  openGraph: {
+    title: 'SwagStore - Premium Branded Merchandise',
+    description: 'Shop our collection of premium branded apparel and accessories',
+    type: 'website',
+  },
+}
 
 export default async function Home() {
   const [products, collections, featuredProducts, homepageSettings] = await Promise.all([
@@ -35,12 +47,12 @@ export default async function Home() {
             <p className="text-xl sm:text-2xl mb-8 text-blue-100">
               {heroSubtitle}
             </p>
-            <a
+            <Link
               href="/products"
               className="inline-block bg-white text-blue-600 px-8 py-3 rounded-lg font-semibold hover:bg-blue-50 transition-colors"
             >
               Shop Now
-            </a>
+            </Link>
           </div>
         </div>
       </section>
@@ -78,7 +90,7 @@ export default async function Home() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center mb-8">
             <h2 className="text-3xl font-bold">Recent Products</h2>
-            <a
+            <Link
               href="/products"
               className="text-blue-600 hover:text-blue-800 font-medium flex items-center gap-2"
             >
@@ -86,7 +98,7 @@ export default async function Home() {
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
               </svg>
-            </a>
+            </Link>
           </div>
           {products.length > 0 ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">

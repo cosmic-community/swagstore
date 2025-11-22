@@ -1,3 +1,4 @@
+import Link from 'next/link'
 import { Product } from '@/types'
 
 interface ProductCardProps {
@@ -8,7 +9,7 @@ export default function ProductCard({ product }: ProductCardProps) {
   const primaryImage = product.metadata.product_images?.[0]
 
   return (
-    <a
+    <Link
       href={`/products/${product.slug}`}
       className="group bg-white rounded-lg shadow-md overflow-hidden hover:shadow-xl transition-shadow duration-300"
     >
@@ -65,6 +66,6 @@ export default function ProductCard({ product }: ProductCardProps) {
           </div>
         )}
       </div>
-    </a>
+    </Link>
   )
 }

@@ -1,5 +1,7 @@
 'use client'
 
+import Link from 'next/link'
+
 interface PaginationProps {
   currentPage: number
   totalPages: number
@@ -42,17 +44,16 @@ export default function Pagination({ currentPage, totalPages, basePath }: Pagina
   return (
     <div className="flex items-center justify-center gap-2 mt-12">
       {/* Previous Button */}
-      <a
+      <Link
         href={currentPage > 1 ? `${basePath}?page=${currentPage - 1}` : '#'}
         className={`px-4 py-2 rounded-lg font-medium transition-colors ${
           currentPage > 1
             ? 'bg-white text-gray-700 hover:bg-blue-50 hover:text-blue-600 border border-gray-300'
-            : 'bg-gray-100 text-gray-400 cursor-not-allowed'
+            : 'bg-gray-100 text-gray-400 cursor-not-allowed pointer-events-none'
         }`}
-        onClick={(e) => currentPage <= 1 && e.preventDefault()}
       >
         Previous
-      </a>
+      </Link>
 
       {/* Page Numbers */}
       <div className="flex gap-2">
@@ -69,7 +70,7 @@ export default function Pagination({ currentPage, totalPages, basePath }: Pagina
           const isActive = pageNum === currentPage
 
           return (
-            <a
+            <Link
               key={pageNum}
               href={`${basePath}?page=${pageNum}`}
               className={`px-4 py-2 rounded-lg font-medium transition-colors ${
@@ -79,23 +80,22 @@ export default function Pagination({ currentPage, totalPages, basePath }: Pagina
               }`}
             >
               {pageNum}
-            </a>
+            </Link>
           )
         })}
       </div>
 
       {/* Next Button */}
-      <a
+      <Link
         href={currentPage < totalPages ? `${basePath}?page=${currentPage + 1}` : '#'}
         className={`px-4 py-2 rounded-lg font-medium transition-colors ${
           currentPage < totalPages
             ? 'bg-white text-gray-700 hover:bg-blue-50 hover:text-blue-600 border border-gray-300'
-            : 'bg-gray-100 text-gray-400 cursor-not-allowed'
+            : 'bg-gray-100 text-gray-400 cursor-not-allowed pointer-events-none'
         }`}
-        onClick={(e) => currentPage >= totalPages && e.preventDefault()}
       >
         Next
-      </a>
+      </Link>
     </div>
   )
 }

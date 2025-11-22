@@ -3,11 +3,36 @@ import { getCollection, getProductsByCollection } from '@/lib/cosmic'
 import { Collection, Product } from '@/types'
 import { notFound } from 'next/navigation'
 import ProductCard from '@/components/ProductCard'
+import { Metadata } from 'next'
 
 interface CollectionPageProps {
   params: Promise<{
     slug: string
   }>
+}
+
+export async function generateMetadata({ params }: CollectionPageProps): Promise<Metadata> {
+  const { slug } = await params
+  const collection = await getCollection(slug) as Collection | null
+  
+  if (!collection) {
+    return {
+      title: 'Collection Not Found - SwagStore',
+    }
+  }
+
+  return {
+    title: `${collection.metadata.collection_name} - SwagStore`,
+    description: collection.metadata.description || `Shop the ${collection.metadata.collection_name} collection`,
+    openGraph: {
+      title: collection.metadata.collection_name,
+      description: collection.metadata.description || `Shop the ${collection.metadata.collection_name} collection`,
+      type: 'website',
+      images: collection.metadata.banner_image?.imgix_url ? [{
+        url: `${collection.metadata.banner_image.imgix_url}?w=1200&h=630&fit=crop&auto=format,compress`,
+      }] : undefined,
+    },
+  }
 }
 
 export default async function CollectionPage({ params }: CollectionPageProps) {

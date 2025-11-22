@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import Link from 'next/link'
 import { Collection } from '@/types'
 import CartButton from '@/components/CartButton'
 import { useAuth } from '@/contexts/AuthContext'
@@ -26,30 +27,30 @@ export default function Header({ collections }: HeaderProps) {
       <nav className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           {/* Logo */}
-          <a href="/" className="flex items-center">
+          <Link href="/" className="flex items-center">
             <span className="text-2xl font-bold text-blue-600">SwagStore</span>
-          </a>
+          </Link>
 
           {/* Desktop Navigation Links */}
           <div className="hidden md:flex items-center space-x-8">
-            <a
+            <Link
               href="/"
               className="text-gray-700 hover:text-blue-600 font-medium transition-colors"
             >
               Home
-            </a>
-            <a
+            </Link>
+            <Link
               href="/products"
               className="text-gray-700 hover:text-blue-600 font-medium transition-colors"
             >
               Products
-            </a>
-            <a
+            </Link>
+            <Link
               href="/about"
               className="text-gray-700 hover:text-blue-600 font-medium transition-colors"
             >
               About
-            </a>
+            </Link>
             
             {/* Collections Dropdown */}
             {collections.length > 0 && (
@@ -63,25 +64,25 @@ export default function Header({ collections }: HeaderProps) {
                 <div className="absolute left-0 mt-2 w-48 bg-white rounded-lg shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200">
                   <div className="py-2">
                     {collections.map((collection) => (
-                      <a
+                      <Link
                         key={collection.id}
                         href={`/collections/${collection.slug}`}
                         className="block px-4 py-2 text-gray-700 hover:bg-blue-50 hover:text-blue-600"
                       >
                         {collection.metadata.collection_name}
-                      </a>
+                      </Link>
                     ))}
                   </div>
                 </div>
               </div>
             )}
             
-            <a
+            <Link
               href="/blog"
               className="text-gray-700 hover:text-blue-600 font-medium transition-colors"
             >
               Blog
-            </a>
+            </Link>
           </div>
 
           {/* Cart, User Menu, and Mobile Menu */}
@@ -104,13 +105,13 @@ export default function Header({ collections }: HeaderProps) {
                 {userMenuOpen && (
                   <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg">
                     <div className="py-2">
-                      <a
+                      <Link
                         href="/profile"
                         className="block px-4 py-2 text-gray-700 hover:bg-blue-50 hover:text-blue-600"
                         onClick={() => setUserMenuOpen(false)}
                       >
                         My Profile
-                      </a>
+                      </Link>
                       <button
                         onClick={handleLogout}
                         className="w-full text-left block px-4 py-2 text-gray-700 hover:bg-blue-50 hover:text-blue-600"
@@ -122,12 +123,12 @@ export default function Header({ collections }: HeaderProps) {
                 )}
               </div>
             ) : (
-              <a
+              <Link
                 href="/login"
                 className="hidden md:inline-block text-gray-700 hover:text-blue-600 font-medium transition-colors"
               >
                 Login
-              </a>
+              </Link>
             )}
             
             {/* Mobile Menu Button */}
@@ -153,27 +154,27 @@ export default function Header({ collections }: HeaderProps) {
         {mobileMenuOpen && (
           <div className="md:hidden py-4 border-t border-gray-200">
             <div className="flex flex-col space-y-4">
-              <a
+              <Link
                 href="/"
                 className="text-gray-700 hover:text-blue-600 font-medium transition-colors px-2 py-1"
                 onClick={() => setMobileMenuOpen(false)}
               >
                 Home
-              </a>
-              <a
+              </Link>
+              <Link
                 href="/products"
                 className="text-gray-700 hover:text-blue-600 font-medium transition-colors px-2 py-1"
                 onClick={() => setMobileMenuOpen(false)}
               >
                 Products
-              </a>
-              <a
+              </Link>
+              <Link
                 href="/about"
                 className="text-gray-700 hover:text-blue-600 font-medium transition-colors px-2 py-1"
                 onClick={() => setMobileMenuOpen(false)}
               >
                 About
-              </a>
+              </Link>
               
               {/* Mobile Collections Dropdown */}
               {collections.length > 0 && (
@@ -195,7 +196,7 @@ export default function Header({ collections }: HeaderProps) {
                   {collectionsOpen && (
                     <div className="mt-2 ml-4 space-y-2">
                       {collections.map((collection) => (
-                        <a
+                        <Link
                           key={collection.id}
                           href={`/collections/${collection.slug}`}
                           className="block px-2 py-1 text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded"
@@ -205,31 +206,31 @@ export default function Header({ collections }: HeaderProps) {
                           }}
                         >
                           {collection.metadata.collection_name}
-                        </a>
+                        </Link>
                       ))}
                     </div>
                   )}
                 </div>
               )}
               
-              <a
+              <Link
                 href="/blog"
                 className="text-gray-700 hover:text-blue-600 font-medium transition-colors px-2 py-1"
                 onClick={() => setMobileMenuOpen(false)}
               >
                 Blog
-              </a>
+              </Link>
               
               {/* Mobile User Menu */}
               {user ? (
                 <>
-                  <a
+                  <Link
                     href="/profile"
                     className="text-gray-700 hover:text-blue-600 font-medium transition-colors px-2 py-1"
                     onClick={() => setMobileMenuOpen(false)}
                   >
                     My Profile
-                  </a>
+                  </Link>
                   <button
                     onClick={handleLogout}
                     className="text-gray-700 hover:text-blue-600 font-medium transition-colors px-2 py-1 text-left"
@@ -238,13 +239,13 @@ export default function Header({ collections }: HeaderProps) {
                   </button>
                 </>
               ) : (
-                <a
+                <Link
                   href="/login"
                   className="text-gray-700 hover:text-blue-600 font-medium transition-colors px-2 py-1"
                   onClick={() => setMobileMenuOpen(false)}
                 >
                   Login
-                </a>
+                </Link>
               )}
             </div>
           </div>
