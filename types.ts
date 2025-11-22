@@ -119,6 +119,62 @@ export interface User extends CosmicObject {
   }
 }
 
+// Blog Author type
+export interface Author extends CosmicObject {
+  type: 'authors'
+  metadata: {
+    name: string
+    bio?: string
+    avatar?: {
+      url: string
+      imgix_url: string
+    }
+    twitter?: string
+    linkedin?: string
+    website?: string
+  }
+}
+
+// Blog Category type
+export interface Category extends CosmicObject {
+  type: 'categories'
+  metadata: {
+    name: string
+    description?: string
+    color?: string
+  }
+}
+
+// Blog Tag type
+export interface Tag extends CosmicObject {
+  type: 'tags'
+  metadata: {
+    name: string
+  }
+}
+
+// Blog Article type
+export interface Article extends CosmicObject {
+  type: 'articles'
+  metadata: {
+    title: string
+    excerpt?: string
+    content: string
+    featured_image?: {
+      url: string
+      imgix_url: string
+    }
+    author: Author
+    category: Category
+    tags?: Tag[]
+    published_date: string
+    read_time?: number
+    featured?: boolean
+    seo_title?: string
+    seo_description?: string
+  }
+}
+
 // API response types
 export interface CosmicResponse<T> {
   objects: T[]
@@ -150,4 +206,20 @@ export function isAboutPage(obj: CosmicObject): obj is AboutPage {
 
 export function isUser(obj: CosmicObject): obj is User {
   return obj.type === 'users'
+}
+
+export function isAuthor(obj: CosmicObject): obj is Author {
+  return obj.type === 'authors'
+}
+
+export function isCategory(obj: CosmicObject): obj is Category {
+  return obj.type === 'categories'
+}
+
+export function isTag(obj: CosmicObject): obj is Tag {
+  return obj.type === 'tags'
+}
+
+export function isArticle(obj: CosmicObject): obj is Article {
+  return obj.type === 'articles'
 }
