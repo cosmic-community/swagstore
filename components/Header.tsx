@@ -69,6 +69,13 @@ export default function Header({ collections }: HeaderProps) {
                 </div>
               </div>
             )}
+            
+            <a
+              href="/blog"
+              className="text-gray-700 hover:text-blue-600 font-medium transition-colors"
+            >
+              Blog
+            </a>
           </div>
 
           {/* Cart, User Menu, and Mobile Menu */}
@@ -191,6 +198,14 @@ export default function Header({ collections }: HeaderProps) {
                   )}
                 </div>
               )}
+              
+              <a
+                href="/blog"
+                className="text-gray-700 hover:text-blue-600 font-medium transition-colors px-2 py-1"
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                Blog
+              </a>
               
               {/* Mobile User Menu */}
               {user ? (

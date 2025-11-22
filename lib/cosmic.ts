@@ -286,3 +286,321 @@ export async function updateLastLogin(userId: string) {
     console.error('Failed to update last login:', error)
   }
 }
+
+// Blog functions
+
+// Get all articles with pagination
+export async function getArticles(page: number = 1, limit: number = 9) {
+  try {
+    const skip = (page - 1) * limit
+    const response = await cosmic.objects
+      .find({ type: 'articles' })
+      .props(['id', 'title', 'slug', 'metadata', 'thumbnail', 'created_at'])
+      .depth(1)
+    
+    // Sort by published_date descending (newest first)
+    const sortedArticles = response.objects.sort((a: any, b: any) => {
+      const dateA = new Date(a.metadata?.published_date || a.created_at).getTime()
+      const dateB = new Date(b.metadata?.published_date || b.created_at).getTime()
+      return dateB - dateA
+    })
+    
+    // Manual pagination
+    const paginatedArticles = sortedArticles.slice(skip, skip + limit)
+    
+    return {
+      articles: paginatedArticles,
+      total: sortedArticles.length,
+      page,
+      totalPages: Math.ceil(sortedArticles.length / limit)
+    }
+  } catch (error) {
+    if (hasStatus(error) && error.status === 404) {
+      return { articles: [], total: 0, page: 1, totalPages: 0 }
+    }
+    throw new Error('Failed to fetch articles')
+  }
+}
+
+// Get a single article by slug
+export async function getArticle(slug: string) {
+  try {
+    const response = await cosmic.objects
+      .findOne({ type: 'articles', slug })
+      .props(['id', 'title', 'slug', 'metadata', 'thumbnail', 'created_at'])
+      .depth(1)
+    
+    return response.object
+  } catch (error) {
+    if (hasStatus(error) && error.status === 404) {
+      return null
+    }
+    throw new Error('Failed to fetch article')
+  }
+}
+
+// Get featured articles
+export async function getFeaturedArticles(limit: number = 3) {
+  try {
+    const response = await cosmic.objects
+      .find({ 
+        type: 'articles',
+        'metadata.featured': true 
+      })
+      .props(['id', 'title', 'slug', 'metadata', 'thumbnail', 'created_at'])
+      .depth(1)
+    
+    // Sort by published_date descending
+    const sortedArticles = response.objects.sort((a: any, b: any) => {
+      const dateA = new Date(a.metadata?.published_date || a.created_at).getTime()
+      const dateB = new Date(b.metadata?.published_date || b.created_at).getTime()
+      return dateB - dateA
+    })
+    
+    return sortedArticles.slice(0, limit)
+  } catch (error) {
+    if (hasStatus(error) && error.status === 404) {
+      return []
+    }
+    throw new Error('Failed to fetch featured articles')
+  }
+}
+
+// Get articles by category
+export async function getArticlesByCategory(categoryId: string, page: number = 1, limit: number = 9) {
+  try {
+    const skip = (page - 1) * limit
+    const response = await cosmic.objects
+      .find({ 
+        type: 'articles',
+        'metadata.category': categoryId 
+      })
+      .props(['id', 'title', 'slug', 'metadata', 'thumbnail', 'created_at'])
+      .depth(1)
+    
+    // Sort by published_date descending
+    const sortedArticles = response.objects.sort((a: any, b: any) => {
+      const dateA = new Date(a.metadata?.published_date || a.created_at).getTime()
+      const dateB = new Date(b.metadata?.published_date || b.created_at).getTime()
+      return dateB - dateA
+    })
+    
+    const paginatedArticles = sortedArticles.slice(skip, skip + limit)
+    
+    return {
+      articles: paginatedArticles,
+      total: sortedArticles.length,
+      page,
+      totalPages: Math.ceil(sortedArticles.length / limit)
+    }
+  } catch (error) {
+    if (hasStatus(error) && error.status === 404) {
+      return { articles: [], total: 0, page: 1, totalPages: 0 }
+    }
+    throw new Error('Failed to fetch articles by category')
+  }
+}
+
+// Get articles by tag
+export async function getArticlesByTag(tagId: string, page: number = 1, limit: number = 9) {
+  try {
+    const skip = (page - 1) * limit
+    const response = await cosmic.objects
+      .find({ 
+        type: 'articles',
+        'metadata.tags': tagId 
+      })
+      .props(['id', 'title', 'slug', 'metadata', 'thumbnail', 'created_at'])
+      .depth(1)
+    
+    // Sort by published_date descending
+    const sortedArticles = response.objects.sort((a: any, b: any) => {
+      const dateA = new Date(a.metadata?.published_date || a.created_at).getTime()
+      const dateB = new Date(b.metadata?.published_date || b.created_at).getTime()
+      return dateB - dateA
+    })
+    
+    const paginatedArticles = sortedArticles.slice(skip, skip + limit)
+    
+    return {
+      articles: paginatedArticles,
+      total: sortedArticles.length,
+      page,
+      totalPages: Math.ceil(sortedArticles.length / limit)
+    }
+  } catch (error) {
+    if (hasStatus(error) && error.status === 404) {
+      return { articles: [], total: 0, page: 1, totalPages: 0 }
+    }
+    throw new Error('Failed to fetch articles by tag')
+  }
+}
+
+// Get articles by author
+export async function getArticlesByAuthor(authorId: string, page: number = 1, limit: number = 9) {
+  try {
+    const skip = (page - 1) * limit
+    const response = await cosmic.objects
+      .find({ 
+        type: 'articles',
+        'metadata.author': authorId 
+      })
+      .props(['id', 'title', 'slug', 'metadata', 'thumbnail', 'created_at'])
+      .depth(1)
+    
+    // Sort by published_date descending
+    const sortedArticles = response.objects.sort((a: any, b: any) => {
+      const dateA = new Date(a.metadata?.published_date || a.created_at).getTime()
+      const dateB = new Date(b.metadata?.published_date || b.created_at).getTime()
+      return dateB - dateA
+    })
+    
+    const paginatedArticles = sortedArticles.slice(skip, skip + limit)
+    
+    return {
+      articles: paginatedArticles,
+      total: sortedArticles.length,
+      page,
+      totalPages: Math.ceil(sortedArticles.length / limit)
+    }
+  } catch (error) {
+    if (hasStatus(error) && error.status === 404) {
+      return { articles: [], total: 0, page: 1, totalPages: 0 }
+    }
+    throw new Error('Failed to fetch articles by author')
+  }
+}
+
+// Get related articles based on category and tags
+export async function getRelatedArticles(articleId: string, categoryId: string, tagIds: string[] = [], limit: number = 3) {
+  try {
+    const response = await cosmic.objects
+      .find({ type: 'articles' })
+      .props(['id', 'title', 'slug', 'metadata', 'thumbnail', 'created_at'])
+      .depth(1)
+    
+    // Filter out current article and score by relevance
+    const scoredArticles = response.objects
+      .filter((article: any) => article.id !== articleId)
+      .map((article: any) => {
+        let score = 0
+        
+        // Same category gets highest score
+        if (article.metadata?.category?.id === categoryId) {
+          score += 10
+        }
+        
+        // Shared tags get points
+        const articleTagIds = article.metadata?.tags?.map((tag: any) => tag.id) || []
+        const sharedTags = tagIds.filter(tagId => articleTagIds.includes(tagId))
+        score += sharedTags.length * 5
+        
+        return { article, score }
+      })
+      .filter(item => item.score > 0)
+      .sort((a, b) => b.score - a.score)
+    
+    return scoredArticles.slice(0, limit).map(item => item.article)
+  } catch (error) {
+    if (hasStatus(error) && error.status === 404) {
+      return []
+    }
+    throw new Error('Failed to fetch related articles')
+  }
+}
+
+// Get all categories
+export async function getCategories() {
+  try {
+    const response = await cosmic.objects
+      .find({ type: 'categories' })
+      .props(['id', 'title', 'slug', 'metadata'])
+    
+    return response.objects
+  } catch (error) {
+    if (hasStatus(error) && error.status === 404) {
+      return []
+    }
+    throw new Error('Failed to fetch categories')
+  }
+}
+
+// Get a single category by slug
+export async function getCategory(slug: string) {
+  try {
+    const response = await cosmic.objects
+      .findOne({ type: 'categories', slug })
+      .props(['id', 'title', 'slug', 'metadata'])
+    
+    return response.object
+  } catch (error) {
+    if (hasStatus(error) && error.status === 404) {
+      return null
+    }
+    throw new Error('Failed to fetch category')
+  }
+}
+
+// Get all tags
+export async function getTags() {
+  try {
+    const response = await cosmic.objects
+      .find({ type: 'tags' })
+      .props(['id', 'title', 'slug', 'metadata'])
+    
+    return response.objects
+  } catch (error) {
+    if (hasStatus(error) && error.status === 404) {
+      return []
+    }
+    throw new Error('Failed to fetch tags')
+  }
+}
+
+// Get a single tag by slug
+export async function getTag(slug: string) {
+  try {
+    const response = await cosmic.objects
+      .findOne({ type: 'tags', slug })
+      .props(['id', 'title', 'slug', 'metadata'])
+    
+    return response.object
+  } catch (error) {
+    if (hasStatus(error) && error.status === 404) {
+      return null
+    }
+    throw new Error('Failed to fetch tag')
+  }
+}
+
+// Get all authors
+export async function getAuthors() {
+  try {
+    const response = await cosmic.objects
+      .find({ type: 'authors' })
+      .props(['id', 'title', 'slug', 'metadata'])
+    
+    return response.objects
+  } catch (error) {
+    if (hasStatus(error) && error.status === 404) {
+      return []
+    }
+    throw new Error('Failed to fetch authors')
+  }
+}
+
+// Get a single author by slug
+export async function getAuthor(slug: string) {
+  try {
+    const response = await cosmic.objects
+      .findOne({ type: 'authors', slug })
+      .props(['id', 'title', 'slug', 'metadata'])
+    
+    return response.object
+  } catch (error) {
+    if (hasStatus(error) && error.status === 404) {
+      return null
+    }
+    throw new Error('Failed to fetch author')
+  }
+}
