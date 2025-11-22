@@ -28,7 +28,7 @@ export default function Header() {
             <Link href="/products" className="text-gray-700 hover:text-blue-600 transition-colors">
               Products
             </Link>
-            <Link href="/collections/t-shirts" className="text-gray-700 hover:text-blue-600 transition-colors">
+            <Link href="/collections" className="text-gray-700 hover:text-blue-600 transition-colors">
               Collections
             </Link>
             <Link href="/blog" className="text-gray-700 hover:text-blue-600 transition-colors">
@@ -88,7 +88,7 @@ export default function Header() {
             <Link href="/products" className="text-gray-700 hover:text-blue-600 transition-colors">
               Products
             </Link>
-            <Link href="/collections/t-shirts" className="text-gray-700 hover:text-blue-600 transition-colors">
+            <Link href="/collections" className="text-gray-700 hover:text-blue-600 transition-colors">
               Collections
             </Link>
             <Link href="/blog" className="text-gray-700 hover:text-blue-600 transition-colors">
