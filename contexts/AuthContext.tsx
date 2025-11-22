@@ -1,44 +1,24 @@
 'use client'
 
-import { createContext, useContext, useState, useEffect, ReactNode } from 'react'
+import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react'
 import { User } from '@/types'
 
 export interface AuthContextType {
   user: User | null
+  loading: boolean
   login: (email: string, password: string) => Promise<{ success: boolean; error?: string }>
-  logout: () => Promise<void>
   signup: (name: string, email: string, password: string) => Promise<{ success: boolean; error?: string }>
+  logout: () => Promise<void>
   refreshUser: () => Promise<void>
-  isLoading: boolean
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null)
-  const [isLoading, setIsLoading] = useState(true)
+  const [loading, setLoading] = useState(true)
 
-  // Check for existing session on mount
-  useEffect(() => {
-    checkSession()
-  }, [])
-
-  const checkSession = async () => {
-    try {
-      const response = await fetch('/api/auth/session')
-      if (response.ok) {
-        const data = await response.json()
-        if (data.user) {
-          setUser(data.user)
-        }
-      }
-    } catch (error) {
-      console.error('Failed to check session:', error)
-    } finally {
-      setIsLoading(false)
-    }
-  }
-
+  // Changed: Added refreshUser function to fetch current user from session
   const refreshUser = async () => {
     try {
       const response = await fetch('/api/auth/session')
@@ -46,12 +26,26 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         const data = await response.json()
         if (data.user) {
           setUser(data.user)
+        } else {
+          setUser(null)
         }
+      } else {
+        setUser(null)
       }
     } catch (error) {
       console.error('Failed to refresh user:', error)
+      setUser(null)
     }
   }
+
+  // Changed: Check for existing session on mount
+  useEffect(() => {
+    const checkSession = async () => {
+      await refreshUser()
+      setLoading(false)
+    }
+    checkSession()
+  }, [])
 
   const login = async (email: string, password: string): Promise<{ success: boolean; error?: string }> => {
     try {
@@ -66,11 +60,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (response.ok && data.user) {
         setUser(data.user)
         return { success: true }
+      } else {
+        return { success: false, error: data.error || 'Login failed' }
       }
-
-      return { success: false, error: data.error || 'Login failed' }
     } catch (error) {
-      console.error('Login error:', error)
       return { success: false, error: 'An error occurred during login' }
     }
   }
@@ -88,11 +81,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (response.ok && data.user) {
         setUser(data.user)
         return { success: true }
+      } else {
+        return { success: false, error: data.error || 'Signup failed' }
       }
-
-      return { success: false, error: data.error || 'Signup failed' }
     } catch (error) {
-      console.error('Signup error:', error)
       return { success: false, error: 'An error occurred during signup' }
     }
   }
@@ -102,12 +94,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       await fetch('/api/auth/logout', { method: 'POST' })
       setUser(null)
     } catch (error) {
-      console.error('Logout error:', error)
+      console.error('Logout failed:', error)
     }
   }
 
   return (
-    <AuthContext.Provider value={{ user, login, logout, signup, refreshUser, isLoading }}>
+    <AuthContext.Provider value={{ user, loading, login, signup, logout, refreshUser }}>
       {children}
     </AuthContext.Provider>
   )

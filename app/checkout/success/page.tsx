@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import { useCart } from '@/contexts/CartContext'
 import { useAuth } from '@/contexts/AuthContext'
+import { CartItem } from '@/lib/cart'
 
 export default function CheckoutSuccessPage() {
   const router = useRouter()
@@ -32,7 +33,7 @@ export default function CheckoutSuccessPage() {
 
       try {
         // Create order in Cosmic
-        const orderItems = items.map(item => ({
+        const orderItems = items.map((item: CartItem) => ({
           product_id: item.product.id,
           product_name: item.product.metadata.product_name,
           quantity: item.quantity,

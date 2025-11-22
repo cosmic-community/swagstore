@@ -1,5 +1,7 @@
-import Header from '@/components/Header'
+'use client'
 
-export default async function HeaderWrapper() {
+import { Header } from '@/components/Header'
+
+export function HeaderWrapper() {
   return <Header />
 }

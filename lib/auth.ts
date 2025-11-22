@@ -1,6 +1,7 @@
 import { SignJWT, jwtVerify } from 'jose'
 import { cookies } from 'next/headers'
 import { User } from '@/types'
+import { NextRequest } from 'next/server'
 
 const SECRET_KEY = new TextEncoder().encode(
   process.env.JWT_SECRET || 'your-secret-key-min-32-chars-long'
@@ -102,4 +103,42 @@ export async function setSessionCookie(token: string): Promise<void> {
     maxAge: 60 * 60 * 24 * 7, // 7 days
     path: '/'
   })
+}
+
+// Changed: Added verifyAuth function for API route authentication
+export async function verifyAuth(request: NextRequest): Promise<{
+  isValid: boolean
+  userId?: string
+  session?: SessionData
+}> {
+  try {
+    const token = request.cookies.get('session')?.value
+
+    if (!token) {
+      return { isValid: false }
+    }
+
+    const { payload } = await jwtVerify(token, SECRET_KEY)
+    
+    if (
+      typeof payload.userId === 'string' &&
+      typeof payload.email === 'string' &&
+      typeof payload.name === 'string'
+    ) {
+      const session: SessionData = {
+        userId: payload.userId,
+        email: payload.email,
+        name: payload.name
+      }
+      return {
+        isValid: true,
+        userId: payload.userId,
+        session
+      }
+    }
+    
+    return { isValid: false }
+  } catch (error) {
+    return { isValid: false }
+  }
 }

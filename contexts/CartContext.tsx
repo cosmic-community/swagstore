@@ -6,6 +6,7 @@ import { Product } from '@/types'
 
 interface CartContextType {
   cart: Cart
+  items: CartItem[]
   addToCart: (product: Product, quantity?: number, size?: string) => void
   removeFromCart: (productId: string, size?: string) => void
   updateQuantity: (productId: string, quantity: number, size?: string) => void
@@ -51,7 +52,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
   }
 
   return (
-    <CartContext.Provider value={{ cart, addToCart, removeFromCart, updateQuantity, clearCart, itemCount }}>
+    <CartContext.Provider value={{ cart, items: cart.items, addToCart, removeFromCart, updateQuantity, clearCart, itemCount }}>
       {children}
     </CartContext.Provider>
   )
