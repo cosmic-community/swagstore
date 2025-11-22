@@ -13,6 +13,14 @@ export const metadata: Metadata = {
   title: "SwagStore - Premium Branded Merchandise & Corporate Swag",
   description: "Shop high-quality branded merchandise, corporate swag, and custom products. Fast shipping, secure checkout, and premium quality guaranteed.",
   keywords: "branded merchandise, corporate swag, custom products, promotional items, company merchandise",
+  icons: {
+    icon: [
+      {
+        url: "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🛍️</text></svg>",
+        type: "image/svg+xml",
+      },
+    ],
+  },
   openGraph: {
     title: "SwagStore - Premium Branded Merchandise",
     description: "Shop high-quality branded merchandise and corporate swag",
