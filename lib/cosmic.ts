@@ -168,11 +168,11 @@ export async function getHomepageSettings() {
   }
 }
 
-// Get about page (singleton)
+// Get about page content (singleton)
 export async function getAboutPage() {
   try {
     const response = await cosmic.objects
-      .findOne({ type: 'about-pages', slug: 'about' })
+      .findOne({ type: 'about-page', slug: 'about' })
       .props(['id', 'title', 'slug', 'metadata'])
     
     return response.object

@@ -44,6 +44,12 @@ export default function Header({ collections }: HeaderProps) {
             >
               Products
             </a>
+            <a
+              href="/about"
+              className="text-gray-700 hover:text-blue-600 font-medium transition-colors"
+            >
+              About
+            </a>
             
             {/* Collections Dropdown */}
             {collections.length > 0 && (
@@ -69,13 +75,6 @@ export default function Header({ collections }: HeaderProps) {
                 </div>
               </div>
             )}
-
-            <a
-              href="/about"
-              className="text-gray-700 hover:text-blue-600 font-medium transition-colors"
-            >
-              About
-            </a>
           </div>
 
           {/* Cart, User Menu, and Mobile Menu */}
@@ -161,6 +160,13 @@ export default function Header({ collections }: HeaderProps) {
               >
                 Products
               </a>
+              <a
+                href="/about"
+                className="text-gray-700 hover:text-blue-600 font-medium transition-colors px-2 py-1"
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                About
+              </a>
               
               {/* Mobile Collections Dropdown */}
               {collections.length > 0 && (
@@ -198,14 +204,6 @@ export default function Header({ collections }: HeaderProps) {
                   )}
                 </div>
               )}
-
-              <a
-                href="/about"
-                className="text-gray-700 hover:text-blue-600 font-medium transition-colors px-2 py-1"
-                onClick={() => setMobileMenuOpen(false)}
-              >
-                About
-              </a>
               
               {/* Mobile User Menu */}
               {user ? (
