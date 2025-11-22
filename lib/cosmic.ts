@@ -211,6 +211,9 @@ export async function getUserById(userId: string) {
 // Create a new user
 export async function createUser(name: string, email: string, passwordHash: string) {
   try {
+    // Changed: Added more detailed logging and error context
+    console.log('Creating user with:', { name, email, hasPassword: !!passwordHash })
+    
     const response = await cosmic.objects.insertOne({
       title: name,
       type: 'users',
@@ -222,9 +225,18 @@ export async function createUser(name: string, email: string, passwordHash: stri
       }
     })
     
+    console.log('User created successfully:', response.object.id)
     return response.object
   } catch (error) {
-    throw new Error('Failed to create user')
+    // Changed: Enhanced error logging with full error details
+    console.error('Failed to create user - Full error:', {
+      error,
+      message: error instanceof Error ? error.message : 'Unknown error',
+      stack: error instanceof Error ? error.stack : undefined,
+      name,
+      email
+    })
+    throw new Error(`Failed to create user: ${error instanceof Error ? error.message : 'Unknown error'}`)
   }
 }
 

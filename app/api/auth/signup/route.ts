@@ -43,8 +43,17 @@ export async function POST(request: NextRequest) {
     // Hash password
     const passwordHash = await hashPassword(password)
 
-    // Create user
-    const user = await createUser(name, email, passwordHash)
+    // Create user with detailed error logging
+    let user
+    try {
+      user = await createUser(name, email, passwordHash)
+    } catch (createError) {
+      console.error('User creation error details:', createError)
+      return NextResponse.json(
+        { error: 'Failed to create user account. Please try again.' },
+        { status: 500 }
+      )
+    }
 
     // Create JWT token
     const token = await createToken(user)
@@ -63,7 +72,7 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     console.error('Signup error:', error)
     return NextResponse.json(
-      { error: 'Signup failed' },
+      { error: 'Signup failed. Please try again.' },
       { status: 500 }
     )
   }
