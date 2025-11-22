@@ -151,3 +151,19 @@ export async function getFeaturedProducts() {
     throw new Error('Failed to fetch featured products')
   }
 }
+
+// Get homepage settings (singleton)
+export async function getHomepageSettings() {
+  try {
+    const response = await cosmic.objects
+      .findOne({ type: 'homepage-settings', slug: 'homepage-settings' })
+      .props(['id', 'title', 'slug', 'metadata'])
+    
+    return response.object
+  } catch (error) {
+    if (hasStatus(error) && error.status === 404) {
+      return null
+    }
+    throw new Error('Failed to fetch homepage settings')
+  }
+}
