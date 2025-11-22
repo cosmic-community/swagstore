@@ -2,84 +2,61 @@ import { NextRequest, NextResponse } from 'next/server'
 import { cosmic } from '@/lib/cosmic'
 import bcrypt from 'bcryptjs'
 
-interface CreateUserPayload {
-  name: string
-  email: string
-  password: string
-}
-
-interface CosmicError {
-  error?: {
-    status?: number
-    message?: string
-  }
-  message?: string
-  stack?: string
-}
-
-function isCosmicError(error: unknown): error is CosmicError {
-  return typeof error === 'object' && error !== null && ('error' in error || 'message' in error)
-}
-
 export async function POST(request: NextRequest) {
   try {
-    const { name, email, password } = await request.json() as CreateUserPayload
+    const body = await request.json()
+    const { name, email, password } = body
+
+    if (!name || !email || !password) {
+      return NextResponse.json(
+        { error: 'Missing required fields' },
+        { status: 400 }
+      )
+    }
 
     console.log('Creating user with:', { name, email, hasPassword: !!password })
 
     // Hash the password
-    const hashedPassword = await bcrypt.hash(password, 10)
+    const passwordHash = await bcrypt.hash(password, 10)
 
-    // Get current date in YYYY-MM-DD format for Cosmic date metafield
+    // Get current date in YYYY-MM-DD format (CRITICAL: This is the required format for date metafields)
     const now = new Date()
     const createdDate = now.toISOString().split('T')[0] // Format: YYYY-MM-DD
 
+    // Create user in Cosmic
     try {
-      // Create user in Cosmic
-      const { object: user } = await cosmic.objects.insertOne({
+      const response = await cosmic.objects.insertOne({
         title: name,
         type: 'users',
         metadata: {
           email,
-          password_hash: hashedPassword,
-          created_date: createdDate // Use YYYY-MM-DD format
+          password_hash: passwordHash,
+          created_date: createdDate // Changed: Using YYYY-MM-DD format instead of ISO string
         }
       })
-
-      console.log('User created successfully:', user.id)
 
       return NextResponse.json({
         success: true,
         user: {
-          id: user.id,
-          name: user.title,
-          email: user.metadata?.email as string
+          id: response.object.id,
+          name: response.object.title,
+          email: response.object.metadata.email
         }
       })
-    } catch (cosmicError: unknown) {
+    } catch (cosmicError: any) {
       console.error('Failed to create user - Full error:', {
-        error: isCosmicError(cosmicError) ? cosmicError.error : cosmicError,
-        message: isCosmicError(cosmicError) ? cosmicError.message : 'Unknown error',
-        stack: isCosmicError(cosmicError) ? cosmicError.stack : undefined,
+        error: cosmicError,
+        message: cosmicError?.message || 'Unknown error',
+        stack: cosmicError?.stack,
         name,
         email
       })
-      
-      const errorMessage = isCosmicError(cosmicError) && cosmicError.error?.message 
-        ? cosmicError.error.message 
-        : isCosmicError(cosmicError) && cosmicError.message
-        ? cosmicError.message
-        : 'Unknown error'
-      
-      throw new Error(`Failed to create user: ${errorMessage}`)
+      throw new Error(`Failed to create user: ${cosmicError?.message || 'Unknown error'}`)
     }
-  } catch (error: unknown) {
-    console.error('Signup error:', error)
-    
-    const errorMessage = error instanceof Error ? error.message : 'Failed to create user'
-    
+  } catch (error: any) {
+    console.error('User creation error details:', error)
     return NextResponse.json(
-      { error: errorMessage },
+      { error: error.message || 'Failed to create user' },
       { status: 500 }
     )
   }
