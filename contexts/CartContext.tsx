@@ -52,14 +52,28 @@ export function CartProvider({ children }: { children: ReactNode }) {
 
       if (existingItemIndex > -1) {
         const newItems = [...currentItems]
-        newItems[existingItemIndex] = {
-          ...newItems[existingItemIndex],
-          quantity: newItems[existingItemIndex].quantity + (item.quantity || 1)
+        const existingItem = newItems[existingItemIndex]
+        if (existingItem) {
+          newItems[existingItemIndex] = {
+            ...existingItem,
+            quantity: existingItem.quantity + (item.quantity || 1)
+          }
         }
         return newItems
       }
 
-      return [...currentItems, { ...item, quantity: item.quantity || 1 }]
+      // Changed: Ensure all required properties are present with proper types
+      const newItem: CartItem = {
+        id: item.id || '',
+        name: item.name || '',
+        price: item.price || 0,
+        slug: item.slug || '',
+        image: item.image,
+        size: item.size,
+        quantity: item.quantity || 1
+      }
+
+      return [...currentItems, newItem]
     })
   }
 

@@ -27,6 +27,7 @@ export default function AddToCartButton({ product }: AddToCartButtonProps) {
       return
     }
 
+    // Changed: Pass object with all required properties
     addToCart({
       id: product.id,
       name: product.metadata.product_name,
