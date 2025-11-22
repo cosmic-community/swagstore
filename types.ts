@@ -119,6 +119,48 @@ export interface User extends CosmicObject {
   }
 }
 
+// Order status type
+export type OrderStatus = 'Pending' | 'Processing' | 'Shipped' | 'Delivered' | 'Cancelled'
+
+// Order item type
+export interface OrderItem {
+  product_id: string
+  product_name: string
+  quantity: number
+  price: number
+  size?: string
+}
+
+// Order type
+export interface Order extends CosmicObject {
+  type: 'orders'
+  metadata: {
+    user: User
+    order_number: string
+    order_date: string
+    status: {
+      key: OrderStatus
+      value: string
+    }
+    items: OrderItem[]
+    subtotal: number
+    shipping: number
+    tax: number
+    total: number
+    shipping_address?: {
+      name: string
+      address_line1: string
+      address_line2?: string
+      city: string
+      state: string
+      postal_code: string
+      country: string
+    }
+    payment_method?: string
+    tracking_number?: string
+  }
+}
+
 // Blog Author type
 export interface Author extends CosmicObject {
   type: 'authors'
@@ -206,6 +248,10 @@ export function isAboutPage(obj: CosmicObject): obj is AboutPage {
 
 export function isUser(obj: CosmicObject): obj is User {
   return obj.type === 'users'
+}
+
+export function isOrder(obj: CosmicObject): obj is Order {
+  return obj.type === 'orders'
 }
 
 export function isAuthor(obj: CosmicObject): obj is Author {

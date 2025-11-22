@@ -303,6 +303,55 @@ export async function updateLastLogin(userId: string) {
   }
 }
 
+// Order functions
+
+// Get orders by user ID
+export async function getOrdersByUserId(userId: string) {
+  try {
+    const response = await cosmic.objects
+      .find({ 
+        type: 'orders',
+        'metadata.user': userId 
+      })
+      .props(['id', 'title', 'slug', 'metadata', 'created_at'])
+      .depth(1)
+    
+    // Sort by order_date descending (newest first)
+    const orders = response.objects.sort((a: any, b: any) => {
+      const dateA = new Date(a.metadata?.order_date || a.created_at).getTime()
+      const dateB = new Date(b.metadata?.order_date || b.created_at).getTime()
+      return dateB - dateA
+    })
+    
+    return orders
+  } catch (error) {
+    if (hasStatus(error) && error.status === 404) {
+      return []
+    }
+    throw new Error('Failed to fetch orders')
+  }
+}
+
+// Get a single order by ID
+export async function getOrderById(orderId: string) {
+  try {
+    const response = await cosmic.objects
+      .findOne({ 
+        type: 'orders',
+        id: orderId 
+      })
+      .props(['id', 'title', 'slug', 'metadata', 'created_at'])
+      .depth(1)
+    
+    return response.object
+  } catch (error) {
+    if (hasStatus(error) && error.status === 404) {
+      return null
+    }
+    throw new Error('Failed to fetch order')
+  }
+}
+
 // Blog functions
 
 // Get all articles with pagination

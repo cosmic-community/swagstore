@@ -18,20 +18,34 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null)
   const [isLoading, setIsLoading] = useState(true)
 
-  // Check for existing session on mount
+  // Check for existing session on mount and periodically
   useEffect(() => {
     checkSession()
+    
+    // Set up periodic session checks every 5 minutes
+    const interval = setInterval(checkSession, 5 * 60 * 1000)
+    
+    return () => clearInterval(interval)
   }, [])
 
   const checkSession = async () => {
     try {
-      const response = await fetch('/api/auth/session')
+      const response = await fetch('/api/auth/session', {
+        method: 'GET',
+        credentials: 'include', // Changed: Ensure cookies are included
+        cache: 'no-store' // Changed: Prevent caching of session data
+      })
+      
       if (response.ok) {
         const data = await response.json()
         setUser(data.user)
+      } else {
+        // Session is invalid or expired
+        setUser(null)
       }
     } catch (error) {
       console.error('Failed to check session:', error)
+      setUser(null)
     } finally {
       setIsLoading(false)
     }
@@ -42,6 +56,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const response = await fetch('/api/auth/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        credentials: 'include', // Changed: Ensure cookies are included
         body: JSON.stringify({ email, password })
       })
 
@@ -63,6 +78,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const response = await fetch('/api/auth/signup', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        credentials: 'include', // Changed: Ensure cookies are included
         body: JSON.stringify({ name, email, password })
       })
 
@@ -81,7 +97,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const logout = async () => {
     try {
-      await fetch('/api/auth/logout', { method: 'POST' })
+      await fetch('/api/auth/logout', { 
+        method: 'POST',
+        credentials: 'include' // Changed: Ensure cookies are included
+      })
       setUser(null)
     } catch (error) {
       console.error('Logout failed:', error)

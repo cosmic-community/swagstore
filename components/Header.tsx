@@ -112,6 +112,13 @@ export default function Header({ collections }: HeaderProps) {
                       >
                         My Profile
                       </Link>
+                      <Link
+                        href="/orders"
+                        className="block px-4 py-2 text-gray-700 hover:bg-blue-50 hover:text-blue-600"
+                        onClick={() => setUserMenuOpen(false)}
+                      >
+                        My Orders
+                      </Link>
                       <button
                         onClick={handleLogout}
                         className="w-full text-left block px-4 py-2 text-gray-700 hover:bg-blue-50 hover:text-blue-600"
@@ -230,6 +237,13 @@ export default function Header({ collections }: HeaderProps) {
                     onClick={() => setMobileMenuOpen(false)}
                   >
                     My Profile
+                  </Link>
+                  <Link
+                    href="/orders"
+                    className="text-gray-700 hover:text-blue-600 font-medium transition-colors px-2 py-1"
+                    onClick={() => setMobileMenuOpen(false)}
+                  >
+                    My Orders
                   </Link>
                   <button
                     onClick={handleLogout}
