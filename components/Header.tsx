@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { Collection } from '@/types'
 import CartButton from '@/components/CartButton'
+import { useAuth } from '@/contexts/AuthContext'
 
 interface HeaderProps {
   collections: Collection[]
@@ -11,6 +12,14 @@ interface HeaderProps {
 export default function Header({ collections }: HeaderProps) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [collectionsOpen, setCollectionsOpen] = useState(false)
+  const [userMenuOpen, setUserMenuOpen] = useState(false)
+  const { user, logout } = useAuth()
+
+  const handleLogout = async () => {
+    await logout()
+    setUserMenuOpen(false)
+    window.location.href = '/'
+  }
 
   return (
     <header className="bg-white shadow-sm sticky top-0 z-50">
@@ -62,9 +71,51 @@ export default function Header({ collections }: HeaderProps) {
             )}
           </div>
 
-          {/* Cart and Mobile Menu */}
+          {/* Cart, User Menu, and Mobile Menu */}
           <div className="flex items-center gap-4">
             <CartButton />
+            
+            {/* User Menu */}
+            {user ? (
+              <div className="relative">
+                <button
+                  onClick={() => setUserMenuOpen(!userMenuOpen)}
+                  className="flex items-center gap-2 text-gray-700 hover:text-blue-600 font-medium transition-colors"
+                >
+                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                  </svg>
+                  <span className="hidden md:inline">{user.metadata.name}</span>
+                </button>
+                
+                {userMenuOpen && (
+                  <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg">
+                    <div className="py-2">
+                      <a
+                        href="/profile"
+                        className="block px-4 py-2 text-gray-700 hover:bg-blue-50 hover:text-blue-600"
+                        onClick={() => setUserMenuOpen(false)}
+                      >
+                        My Profile
+                      </a>
+                      <button
+                        onClick={handleLogout}
+                        className="w-full text-left block px-4 py-2 text-gray-700 hover:bg-blue-50 hover:text-blue-600"
+                      >
+                        Logout
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
+            ) : (
+              <a
+                href="/login"
+                className="hidden md:inline-block text-gray-700 hover:text-blue-600 font-medium transition-colors"
+              >
+                Login
+              </a>
+            )}
             
             {/* Mobile Menu Button */}
             <button 
@@ -139,6 +190,33 @@ export default function Header({ collections }: HeaderProps) {
                     </div>
                   )}
                 </div>
+              )}
+              
+              {/* Mobile User Menu */}
+              {user ? (
+                <>
+                  <a
+                    href="/profile"
+                    className="text-gray-700 hover:text-blue-600 font-medium transition-colors px-2 py-1"
+                    onClick={() => setMobileMenuOpen(false)}
+                  >
+                    My Profile
+                  </a>
+                  <button
+                    onClick={handleLogout}
+                    className="text-gray-700 hover:text-blue-600 font-medium transition-colors px-2 py-1 text-left"
+                  >
+                    Logout
+                  </button>
+                </>
+              ) : (
+                <a
+                  href="/login"
+                  className="text-gray-700 hover:text-blue-600 font-medium transition-colors px-2 py-1"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  Login
+                </a>
               )}
             </div>
           </div>

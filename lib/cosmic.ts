@@ -167,3 +167,122 @@ export async function getHomepageSettings() {
     throw new Error('Failed to fetch homepage settings')
   }
 }
+
+// User authentication functions
+
+// Get user by email
+export async function getUserByEmail(email: string) {
+  try {
+    const response = await cosmic.objects
+      .find({ 
+        type: 'users',
+        'metadata.email': email 
+      })
+      .props(['id', 'title', 'slug', 'metadata'])
+    
+    return response.objects[0] || null
+  } catch (error) {
+    if (hasStatus(error) && error.status === 404) {
+      return null
+    }
+    throw new Error('Failed to fetch user')
+  }
+}
+
+// Get user by ID
+export async function getUserById(userId: string) {
+  try {
+    const response = await cosmic.objects
+      .findOne({ 
+        type: 'users',
+        id: userId 
+      })
+      .props(['id', 'title', 'slug', 'metadata'])
+    
+    return response.object
+  } catch (error) {
+    if (hasStatus(error) && error.status === 404) {
+      return null
+    }
+    throw new Error('Failed to fetch user')
+  }
+}
+
+// Helper function to format date as YYYY-MM-DD for Cosmic date fields
+function formatDateForCosmic(date: Date): string {
+  const year = date.getFullYear()
+  const month = String(date.getMonth() + 1).padStart(2, '0')
+  const day = String(date.getDate()).padStart(2, '0')
+  return `${year}-${month}-${day}`
+}
+
+// Create a new user
+export async function createUser(name: string, email: string, passwordHash: string) {
+  try {
+    // Changed: Format date as YYYY-MM-DD instead of ISO string for Cosmic date field
+    const createdDate = formatDateForCosmic(new Date())
+    
+    console.log('Creating user with:', { 
+      name, 
+      email, 
+      hasPassword: !!passwordHash,
+      createdDate 
+    })
+    
+    const response = await cosmic.objects.insertOne({
+      title: name,
+      type: 'users',
+      metadata: {
+        name,
+        email,
+        password_hash: passwordHash,
+        created_date: createdDate // Changed: Use YYYY-MM-DD format
+      }
+    })
+    
+    console.log('User created successfully:', response.object.id)
+    return response.object
+  } catch (error) {
+    // Enhanced error logging with full error details
+    console.error('Failed to create user - Full error:', {
+      error,
+      message: error instanceof Error ? error.message : 'Unknown error',
+      stack: error instanceof Error ? error.stack : undefined,
+      name,
+      email
+    })
+    throw new Error(`Failed to create user: ${error instanceof Error ? error.message : 'Unknown error'}`)
+  }
+}
+
+// Update user profile
+export async function updateUserProfile(userId: string, updates: {
+  name?: string
+  profile_image?: string
+}) {
+  try {
+    const response = await cosmic.objects.updateOne(userId, {
+      metadata: updates
+    })
+    
+    return response.object
+  } catch (error) {
+    throw new Error('Failed to update user profile')
+  }
+}
+
+// Update last login time
+export async function updateLastLogin(userId: string) {
+  try {
+    // Changed: Format date as YYYY-MM-DD for Cosmic date field
+    const lastLoginDate = formatDateForCosmic(new Date())
+    
+    await cosmic.objects.updateOne(userId, {
+      metadata: {
+        last_login: lastLoginDate // Changed: Use YYYY-MM-DD format
+      }
+    })
+  } catch (error) {
+    console.error('Failed to update last login:', error)
+  }
+}

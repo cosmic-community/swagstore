@@ -77,6 +77,22 @@ export interface HomepageSettings extends CosmicObject {
   }
 }
 
+// User type for authentication
+export interface User extends CosmicObject {
+  type: 'users'
+  metadata: {
+    name: string
+    email: string
+    password_hash: string
+    created_date?: string
+    last_login?: string
+    profile_image?: {
+      url: string
+      imgix_url: string
+    }
+  }
+}
+
 // API response types
 export interface CosmicResponse<T> {
   objects: T[]
@@ -100,4 +116,8 @@ export function isReview(obj: CosmicObject): obj is Review {
 
 export function isHomepageSettings(obj: CosmicObject): obj is HomepageSettings {
   return obj.type === 'homepage-settings'
+}
+
+export function isUser(obj: CosmicObject): obj is User {
+  return obj.type === 'users'
 }

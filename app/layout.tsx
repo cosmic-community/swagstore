@@ -4,6 +4,7 @@ import HeaderWrapper from '@/components/HeaderWrapper'
 import Footer from '@/components/Footer'
 import CosmicBadge from '@/components/CosmicBadge'
 import { CartProvider } from '@/contexts/CartContext'
+import { AuthProvider } from '@/contexts/AuthContext'
 
 export const metadata: Metadata = {
   title: 'SwagStore - Premium Branded Merchandise',
@@ -31,14 +32,16 @@ export default function RootLayout({
         <script src="/dashboard-console-capture.js" />
       </head>
       <body>
-        <CartProvider>
-          <HeaderWrapper />
-          <main className="min-h-screen">
-            {children}
-          </main>
-          <Footer />
-          <CosmicBadge bucketSlug={bucketSlug} />
-        </CartProvider>
+        <AuthProvider>
+          <CartProvider>
+            <HeaderWrapper />
+            <main className="min-h-screen">
+              {children}
+            </main>
+            <Footer />
+            <CosmicBadge bucketSlug={bucketSlug} />
+          </CartProvider>
+        </AuthProvider>
       </body>
     </html>
   )
