@@ -21,30 +21,30 @@ export default async function CollectionPage({ params }: CollectionPageProps) {
 
   const products = await getProductsByCollection(collection.id) as Product[]
 
+  const heroBackgroundImage = collection.metadata.banner_image?.imgix_url
+
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Collection Header */}
-      <section className="bg-gradient-to-r from-blue-600 to-blue-800 text-white py-16">
+      <section 
+        className="relative bg-gradient-to-r from-blue-600 to-blue-800 text-white py-20"
+        style={heroBackgroundImage ? {
+          backgroundImage: `linear-gradient(to right, rgba(37, 99, 235, 0.8), rgba(30, 64, 175, 0.8)), url(${heroBackgroundImage}?w=2000&h=800&fit=crop&auto=format,compress)`,
+          backgroundSize: 'cover',
+          backgroundPosition: 'center'
+        } : undefined}
+      >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          {collection.metadata.banner_image && (
-            <div className="mb-8 rounded-lg overflow-hidden max-h-64">
-              <img
-                src={`${collection.metadata.banner_image.imgix_url}?w=1400&h=400&fit=crop&auto=format,compress`}
-                alt={collection.metadata.collection_name}
-                width={1400}
-                height={400}
-                className="w-full h-full object-cover"
-              />
-            </div>
-          )}
-          <h1 className="text-4xl sm:text-5xl font-bold mb-4">
-            {collection.metadata.collection_name}
-          </h1>
-          {collection.metadata.description && (
-            <p className="text-xl text-blue-100 max-w-3xl">
-              {collection.metadata.description}
-            </p>
-          )}
+          <div className="text-center">
+            <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold mb-6">
+              {collection.metadata.collection_name}
+            </h1>
+            {collection.metadata.description && (
+              <p className="text-xl sm:text-2xl mb-8 text-blue-100">
+                {collection.metadata.description}
+              </p>
+            )}
+          </div>
         </div>
       </section>
 
