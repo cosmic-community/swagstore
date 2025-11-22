@@ -1,7 +1,19 @@
+import Link from 'next/link'
 import { getArticles, getCategories, getFeaturedArticles } from '@/lib/cosmic'
 import { Article, Category } from '@/types'
 import ArticleCard from '@/components/ArticleCard'
 import Pagination from '@/components/Pagination'
+import { Metadata } from 'next'
+
+export const metadata: Metadata = {
+  title: 'Blog - SwagStore',
+  description: 'Stories, insights, and updates from our team. Stay informed about the latest trends in branded merchandise.',
+  openGraph: {
+    title: 'Blog - SwagStore',
+    description: 'Stories, insights, and updates from our team',
+    type: 'website',
+  },
+}
 
 interface BlogPageProps {
   searchParams: Promise<{ page?: string }>
@@ -52,20 +64,20 @@ export default async function BlogPage({ searchParams }: BlogPageProps) {
         <section className="py-8 bg-gray-100">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="flex flex-wrap gap-3 justify-center">
-              <a
+              <Link
                 href="/blog"
                 className="px-4 py-2 bg-white rounded-full text-sm font-medium text-gray-700 hover:bg-blue-600 hover:text-white transition-colors"
               >
                 All Articles
-              </a>
+              </Link>
               {categories.map((category: Category) => (
-                <a
+                <Link
                   key={category.id}
                   href={`/blog/category/${category.slug}`}
                   className="px-4 py-2 bg-white rounded-full text-sm font-medium text-gray-700 hover:bg-blue-600 hover:text-white transition-colors"
                 >
                   {category.metadata.name}
-                </a>
+                </Link>
               ))}
             </div>
           </div>

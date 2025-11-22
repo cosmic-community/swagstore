@@ -1,3 +1,4 @@
+import Link from 'next/link'
 import { Collection } from '@/types'
 
 interface CollectionCardProps {
@@ -6,7 +7,7 @@ interface CollectionCardProps {
 
 export default function CollectionCard({ collection }: CollectionCardProps) {
   return (
-    <a
+    <Link
       href={`/collections/${collection.slug}`}
       className="group relative h-80 rounded-lg overflow-hidden shadow-lg hover:shadow-2xl transition-shadow duration-300"
     >
@@ -43,6 +44,6 @@ export default function CollectionCard({ collection }: CollectionCardProps) {
           </svg>
         </div>
       </div>
-    </a>
+    </Link>
   )
 }

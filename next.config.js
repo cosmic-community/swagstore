@@ -9,6 +9,14 @@ const nextConfig = {
   eslint: {
     ignoreDuringBuilds: false,
   },
+  // Enable static optimization
+  output: 'standalone',
+  // Enable compression
+  compress: true,
+  // Enable React strict mode for better performance
+  reactStrictMode: true,
+  // Optimize fonts
+  optimizeFonts: true,
 }
 
 module.exports = nextConfig

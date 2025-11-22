@@ -7,8 +7,34 @@ import { CartProvider } from '@/contexts/CartContext'
 import { AuthProvider } from '@/contexts/AuthContext'
 
 export const metadata: Metadata = {
+  metadataBase: new URL('https://swagstore.com'),
   title: 'SwagStore - Premium Branded Merchandise',
-  description: 'Shop our collection of premium branded apparel and accessories',
+  description: 'Shop our collection of premium branded apparel and accessories. High-quality products for your business and personal use.',
+  keywords: ['branded merchandise', 'swag', 'apparel', 'business gifts', 'promotional products'],
+  authors: [{ name: 'SwagStore' }],
+  openGraph: {
+    title: 'SwagStore - Premium Branded Merchandise',
+    description: 'Shop our collection of premium branded apparel and accessories',
+    type: 'website',
+    locale: 'en_US',
+    siteName: 'SwagStore',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'SwagStore - Premium Branded Merchandise',
+    description: 'Shop our collection of premium branded apparel and accessories',
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      'max-video-preview': -1,
+      'max-image-preview': 'large',
+      'max-snippet': -1,
+    },
+  },
   icons: {
     icon: [
       {

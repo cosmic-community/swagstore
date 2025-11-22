@@ -1,13 +1,41 @@
 // app/blog/[slug]/page.tsx
+import Link from 'next/link'
 import { getArticle, getRelatedArticles } from '@/lib/cosmic'
 import { Article } from '@/types'
 import { notFound } from 'next/navigation'
 import ArticleCard from '@/components/ArticleCard'
+import { Metadata } from 'next'
 
 interface ArticlePageProps {
   params: Promise<{
     slug: string
   }>
+}
+
+export async function generateMetadata({ params }: ArticlePageProps): Promise<Metadata> {
+  const { slug } = await params
+  const article = await getArticle(slug) as Article | null
+  
+  if (!article) {
+    return {
+      title: 'Article Not Found - SwagStore',
+    }
+  }
+
+  return {
+    title: `${article.metadata.title} - SwagStore Blog`,
+    description: article.metadata.excerpt || article.metadata.title,
+    openGraph: {
+      title: article.metadata.title,
+      description: article.metadata.excerpt || article.metadata.title,
+      type: 'article',
+      publishedTime: article.metadata.published_date || article.created_at,
+      authors: article.metadata.author ? [article.metadata.author.metadata.name] : undefined,
+      images: article.metadata.featured_image?.imgix_url ? [{
+        url: `${article.metadata.featured_image.imgix_url}?w=1200&h=630&fit=crop&auto=format,compress`,
+      }] : undefined,
+    },
+  }
 }
 
 export default async function ArticlePage({ params }: ArticlePageProps) {
@@ -42,7 +70,7 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
           {/* Category Badge */}
           {article.metadata.category && (
-            <a
+            <Link
               href={`/blog/category/${article.metadata.category.slug}`}
               className="inline-block px-4 py-2 text-sm font-semibold rounded-full mb-6"
               style={{
@@ -51,7 +79,7 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
               }}
             >
               {article.metadata.category.metadata.name}
-            </a>
+            </Link>
           )}
 
           {/* Title */}
@@ -70,7 +98,7 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
           <div className="flex flex-wrap items-center gap-6 mb-8 pb-8 border-b border-gray-200">
             {/* Author */}
             {article.metadata.author && (
-              <a
+              <Link
                 href={`/blog/author/${article.metadata.author.slug}`}
                 className="flex items-center gap-3 hover:opacity-80 transition-opacity"
               >
@@ -89,7 +117,7 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
                   </div>
                   <div className="text-sm text-gray-500">Author</div>
                 </div>
-              </a>
+              </Link>
             )}
 
             {/* Date and Read Time */}
@@ -135,13 +163,13 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
             <div className="flex flex-wrap gap-2 pt-8 border-t border-gray-200">
               <span className="text-gray-600 font-semibold">Tags:</span>
               {article.metadata.tags.map((tag) => (
-                <a
+                <Link
                   key={tag.id}
                   href={`/blog/tag/${tag.slug}`}
                   className="px-3 py-1 bg-gray-100 text-gray-700 rounded-full text-sm hover:bg-gray-200 transition-colors"
                 >
                   #{tag.metadata.name}
-                </a>
+                </Link>
               ))}
             </div>
           )}
