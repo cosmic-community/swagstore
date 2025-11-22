@@ -3,12 +3,12 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react'
 import { User } from '@/types'
 
-interface AuthContextType {
+export interface AuthContextType {
   user: User | null
   isLoading: boolean
-  login: (email: string, password: string) => Promise<{ success: boolean; error?: string }>
-  signup: (name: string, email: string, password: string) => Promise<{ success: boolean; error?: string }>
+  login: (email: string, password: string) => Promise<{ success?: boolean; error?: string }>
   logout: () => Promise<void>
+  signup: (name: string, email: string, password: string) => Promise<{ success?: boolean; error?: string }>
   refreshUser: () => Promise<void>
 }
 
@@ -31,10 +31,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         setUser(data.user)
       }
     } catch (error) {
-      console.error('Failed to check session:', error)
+      console.error('Session check failed:', error)
     } finally {
       setIsLoading(false)
     }
+  }
+
+  const refreshUser = async () => {
+    await checkSession()
   }
 
   const login = async (email: string, password: string) => {
@@ -47,14 +51,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
       const data = await response.json()
 
-      if (!response.ok) {
-        return { success: false, error: data.error || 'Login failed' }
+      if (response.ok) {
+        setUser(data.user)
+        return { success: true }
+      } else {
+        return { error: data.error || 'Login failed' }
       }
-
-      setUser(data.user)
-      return { success: true }
     } catch (error) {
-      return { success: false, error: 'Network error' }
+      console.error('Login error:', error)
+      return { error: 'Login failed' }
     }
   }
 
@@ -68,14 +73,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
       const data = await response.json()
 
-      if (!response.ok) {
-        return { success: false, error: data.error || 'Signup failed' }
+      if (response.ok) {
+        setUser(data.user)
+        return { success: true }
+      } else {
+        return { error: data.error || 'Signup failed' }
       }
-
-      setUser(data.user)
-      return { success: true }
     } catch (error) {
-      return { success: false, error: 'Network error' }
+      console.error('Signup error:', error)
+      return { error: 'Signup failed' }
     }
   }
 
@@ -84,16 +90,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       await fetch('/api/auth/logout', { method: 'POST' })
       setUser(null)
     } catch (error) {
-      console.error('Logout failed:', error)
+      console.error('Logout error:', error)
     }
   }
 
-  const refreshUser = async () => {
-    await checkSession()
-  }
-
   return (
-    <AuthContext.Provider value={{ user, isLoading, login, signup, logout, refreshUser }}>
+    <AuthContext.Provider value={{ user, isLoading, login, logout, signup, refreshUser }}>
       {children}
     </AuthContext.Provider>
   )

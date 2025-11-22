@@ -15,8 +15,6 @@ const nextConfig = {
   compress: true,
   // Enable React strict mode for better performance
   reactStrictMode: true,
-  // Optimize fonts
-  optimizeFonts: true,
 }
 
 module.exports = nextConfig

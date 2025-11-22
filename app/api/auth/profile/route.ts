@@ -23,10 +23,10 @@ export async function PUT(request: NextRequest) {
     }
 
     // Update user profile
-    await updateUserProfile(session.userId, { name })
+    await updateUserProfile(session.id, { name })
 
     // Get updated user
-    const user = await getUserById(session.userId)
+    const user = await getUserById(session.id)
     
     if (!user) {
       return NextResponse.json(

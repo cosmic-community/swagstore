@@ -1,62 +1,40 @@
-import { NextRequest, NextResponse } from 'next/server'
-import { cosmic } from '@/lib/cosmic'
-import bcrypt from 'bcryptjs'
+import { NextResponse } from 'next/server'
+import { getSession } from '@/lib/auth'
+import { getUserById } from '@/lib/cosmic'
 
-export async function POST(request: NextRequest) {
+export async function GET() {
   try {
-    const body = await request.json()
-    const { name, email, password } = body
-
-    if (!name || !email || !password) {
+    const session = await getSession()
+    
+    if (!session) {
       return NextResponse.json(
-        { error: 'Missing required fields' },
-        { status: 400 }
+        { error: 'No active session' },
+        { status: 401 }
       )
     }
 
-    console.log('Creating user with:', { name, email, hasPassword: !!password })
-
-    // Hash the password
-    const passwordHash = await bcrypt.hash(password, 10)
-
-    // Get current date in YYYY-MM-DD format (CRITICAL: This is the required format for date metafields)
-    const now = new Date()
-    const createdDate = now.toISOString().split('T')[0] // Format: YYYY-MM-DD
-
-    // Create user in Cosmic
-    try {
-      const response = await cosmic.objects.insertOne({
-        title: name,
-        type: 'users',
-        metadata: {
-          email,
-          password_hash: passwordHash,
-          created_date: createdDate // Changed: Using YYYY-MM-DD format instead of ISO string
-        }
-      })
-
-      return NextResponse.json({
-        success: true,
-        user: {
-          id: response.object.id,
-          name: response.object.title,
-          email: response.object.metadata.email
-        }
-      })
-    } catch (cosmicError: any) {
-      console.error('Failed to create user - Full error:', {
-        error: cosmicError,
-        message: cosmicError?.message || 'Unknown error',
-        stack: cosmicError?.stack,
-        name,
-        email
-      })
-      throw new Error(`Failed to create user: ${cosmicError?.message || 'Unknown error'}`)
+    // Get user data from Cosmic
+    const user = await getUserById(session.id)
+    
+    if (!user) {
+      return NextResponse.json(
+        { error: 'User not found' },
+        { status: 404 }
+      )
     }
-  } catch (error: any) {
-    console.error('User creation error details:', error)
+
+    // Return user data (without password hash)
+    const { password_hash, ...userMetadata } = user.metadata
+    return NextResponse.json({
+      user: {
+        ...user,
+        metadata: userMetadata
+      }
+    })
+  } catch (error) {
+    console.error('Session check error:', error)
     return NextResponse.json(
-      { error: error.message || 'Failed to create user' },
+      { error: 'Failed to check session' },
       { status: 500 }
     )
   }

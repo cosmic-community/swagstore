@@ -27,7 +27,17 @@ export default function AddToCartButton({ product }: AddToCartButtonProps) {
       return
     }
 
-    addToCart(product, quantity, selectedSize || undefined)
+    // Changed: Pass object with all required properties
+    addToCart({
+      id: product.id,
+      name: product.metadata.product_name,
+      price: product.metadata.price,
+      slug: product.slug,
+      image: product.metadata.product_images?.[0]?.imgix_url,
+      size: selectedSize || undefined,
+      quantity
+    })
+    
     setShowSuccess(true)
     setTimeout(() => setShowSuccess(false), 2000)
   }

@@ -1,36 +1,34 @@
 'use client'
 
-import { useState, useEffect } from 'react'
-import { useAuth } from '@/contexts/AuthContext'
+import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
+import { useAuth } from '@/contexts/AuthContext'
 
 export default function LoginPage() {
+  const router = useRouter()
+  const { login } = useAuth()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
   const [isLoading, setIsLoading] = useState(false)
-  const { login, user } = useAuth()
-  const router = useRouter()
-
-  // Redirect if already logged in
-  useEffect(() => {
-    if (user) {
-      router.push('/profile')
-    }
-  }, [user, router])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setError('')
     setIsLoading(true)
 
-    const result = await login(email, password)
-    
-    if (result.success) {
-      router.push('/profile')
-    } else {
-      setError(result.error || 'Login failed')
+    try {
+      const result = await login(email, password)
+
+      if (result.success) {
+        router.push('/profile')
+      } else {
+        setError(result.error || 'Login failed')
+      }
+    } catch (err) {
+      setError('An error occurred during login')
+    } finally {
       setIsLoading(false)
     }
   }
@@ -49,18 +47,12 @@ export default function LoginPage() {
             </Link>
           </p>
         </div>
-        
         <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
           {error && (
             <div className="rounded-md bg-red-50 p-4">
-              <div className="flex">
-                <div className="ml-3">
-                  <h3 className="text-sm font-medium text-red-800">{error}</h3>
-                </div>
-              </div>
+              <p className="text-sm text-red-800">{error}</p>
             </div>
           )}
-          
           <div className="rounded-md shadow-sm -space-y-px">
             <div>
               <label htmlFor="email" className="sr-only">
