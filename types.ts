@@ -64,6 +64,19 @@ export interface Review extends CosmicObject {
   }
 }
 
+// Homepage settings type
+export interface HomepageSettings extends CosmicObject {
+  type: 'homepage-settings'
+  metadata: {
+    hero_background_image?: {
+      url: string
+      imgix_url: string
+    }
+    hero_title?: string
+    hero_subtitle?: string
+  }
+}
+
 // API response types
 export interface CosmicResponse<T> {
   objects: T[]
@@ -83,4 +96,8 @@ export function isCollection(obj: CosmicObject): obj is Collection {
 
 export function isReview(obj: CosmicObject): obj is Review {
   return obj.type === 'reviews'
+}
+
+export function isHomepageSettings(obj: CosmicObject): obj is HomepageSettings {
+  return obj.type === 'homepage-settings'
 }
