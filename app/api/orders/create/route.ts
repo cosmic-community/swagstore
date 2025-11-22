@@ -1,13 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { verifyAuth } from '@/lib/auth'
+import { getSession } from '@/lib/auth'
 import { createOrder } from '@/lib/cosmic'
 import { OrderItem } from '@/types'
 
 export async function POST(request: NextRequest) {
   try {
     // Verify authentication
-    const authResult = await verifyAuth(request)
-    if (!authResult.isValid || !authResult.userId) {
+    const user = await getSession()
+    if (!user) {
       return NextResponse.json(
         { error: 'Unauthorized' },
         { status: 401 }
@@ -30,7 +30,7 @@ export async function POST(request: NextRequest) {
 
     // Create order in Cosmic
     const order = await createOrder(
-      authResult.userId,
+      user.id,
       orderNumber,
       items as OrderItem[],
       subtotal,

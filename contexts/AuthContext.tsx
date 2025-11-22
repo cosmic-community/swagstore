@@ -5,11 +5,10 @@ import { User } from '@/types'
 
 export interface AuthContextType {
   user: User | null
-  loading: boolean
-  isLoading: boolean // Changed: Added isLoading alias for consistency
-  login: (email: string, password: string) => Promise<{ success: boolean; error?: string }>
-  signup: (name: string, email: string, password: string) => Promise<{ success: boolean; error?: string }>
+  isLoading: boolean
+  login: (email: string, password: string) => Promise<{ success?: boolean; error?: string }>
   logout: () => Promise<void>
+  signup: (name: string, email: string, password: string) => Promise<{ success?: boolean; error?: string }>
   refreshUser: () => Promise<void>
 }
 
@@ -17,38 +16,32 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined)
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null)
-  const [loading, setLoading] = useState(true)
+  const [isLoading, setIsLoading] = useState(true)
 
-  // Changed: Added refreshUser function to fetch current user from session
-  const refreshUser = async () => {
+  // Check for existing session on mount
+  useEffect(() => {
+    checkSession()
+  }, [])
+
+  const checkSession = async () => {
     try {
       const response = await fetch('/api/auth/session')
       if (response.ok) {
         const data = await response.json()
-        if (data.user) {
-          setUser(data.user)
-        } else {
-          setUser(null)
-        }
-      } else {
-        setUser(null)
+        setUser(data.user)
       }
     } catch (error) {
-      console.error('Failed to refresh user:', error)
-      setUser(null)
+      console.error('Session check failed:', error)
+    } finally {
+      setIsLoading(false)
     }
   }
 
-  // Changed: Check for existing session on mount
-  useEffect(() => {
-    const checkSession = async () => {
-      await refreshUser()
-      setLoading(false)
-    }
-    checkSession()
-  }, [])
+  const refreshUser = async () => {
+    await checkSession()
+  }
 
-  const login = async (email: string, password: string): Promise<{ success: boolean; error?: string }> => {
+  const login = async (email: string, password: string) => {
     try {
       const response = await fetch('/api/auth/login', {
         method: 'POST',
@@ -58,18 +51,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
       const data = await response.json()
 
-      if (response.ok && data.user) {
+      if (response.ok) {
         setUser(data.user)
         return { success: true }
       } else {
-        return { success: false, error: data.error || 'Login failed' }
+        return { error: data.error || 'Login failed' }
       }
     } catch (error) {
-      return { success: false, error: 'An error occurred during login' }
+      console.error('Login error:', error)
+      return { error: 'Login failed' }
     }
   }
 
-  const signup = async (name: string, email: string, password: string): Promise<{ success: boolean; error?: string }> => {
+  const signup = async (name: string, email: string, password: string) => {
     try {
       const response = await fetch('/api/auth/signup', {
         method: 'POST',
@@ -79,14 +73,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
       const data = await response.json()
 
-      if (response.ok && data.user) {
+      if (response.ok) {
         setUser(data.user)
         return { success: true }
       } else {
-        return { success: false, error: data.error || 'Signup failed' }
+        return { error: data.error || 'Signup failed' }
       }
     } catch (error) {
-      return { success: false, error: 'An error occurred during signup' }
+      console.error('Signup error:', error)
+      return { error: 'Signup failed' }
     }
   }
 
@@ -95,12 +90,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       await fetch('/api/auth/logout', { method: 'POST' })
       setUser(null)
     } catch (error) {
-      console.error('Logout failed:', error)
+      console.error('Logout error:', error)
     }
   }
 
   return (
-    <AuthContext.Provider value={{ user, loading, isLoading: loading, login, signup, logout, refreshUser }}>
+    <AuthContext.Provider value={{ user, isLoading, login, logout, signup, refreshUser }}>
       {children}
     </AuthContext.Provider>
   )

@@ -14,7 +14,7 @@ export async function GET() {
     }
 
     // Get user data from Cosmic
-    const user = await getUserById(session.userId)
+    const user = await getUserById(session.id)
     
     if (!user) {
       return NextResponse.json(

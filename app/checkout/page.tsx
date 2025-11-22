@@ -7,7 +7,7 @@ import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 
 export default function CheckoutPage() {
-  const { cart, clearCart } = useCart()
+  const { items, clearCart, totalPrice } = useCart()
   const { user } = useAuth()
   const router = useRouter()
   const [isProcessing, setIsProcessing] = useState(false)
@@ -26,7 +26,7 @@ export default function CheckoutPage() {
     cardCvc: '',
   })
 
-  if (cart.items.length === 0) {
+  if (items.length === 0) {
     return (
       <div className="min-h-screen bg-gray-50 py-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -53,20 +53,18 @@ export default function CheckoutPage() {
       // Changed: Create order in Cosmic if user is logged in
       if (user) {
         const orderData = {
-          userId: user.id,
-          email: formData.email,
-          items: cart.items.map(item => ({
-            product_id: item.product.id,
-            product_name: item.product.metadata.product_name,
+          items: items.map((item) => ({
+            product_id: item.id,
+            product_name: item.name,
             quantity: item.quantity,
-            price: item.product.metadata.price,
+            price: item.price,
             size: item.size
           })),
-          subtotal: cart.total,
+          subtotal: totalPrice,
           shipping: 0,
-          tax: cart.total * 0.08,
-          total: cart.total * 1.08,
-          shipping_address: {
+          tax: totalPrice * 0.08,
+          total: totalPrice * 1.08,
+          shippingAddress: {
             name: `${formData.firstName} ${formData.lastName}`,
             address_line1: formData.address,
             city: formData.city,
@@ -285,7 +283,7 @@ export default function CheckoutPage() {
                     : 'bg-blue-600 hover:bg-blue-700'
                 }`}
               >
-                {isProcessing ? 'Processing...' : `Pay $${(cart.total * 1.08).toFixed(2)}`}
+                {isProcessing ? 'Processing...' : `Pay $${(totalPrice * 1.08).toFixed(2)}`}
               </button>
             </form>
           </div>
@@ -296,16 +294,16 @@ export default function CheckoutPage() {
               <h2 className="text-xl font-bold mb-6">Order Summary</h2>
               
               <div className="space-y-4 mb-6">
-                {cart.items.map((item) => (
-                  <div key={`${item.product.id}-${item.size || 'no-size'}`} className="flex justify-between text-sm">
+                {items.map((item) => (
+                  <div key={`${item.id}-${item.size || 'no-size'}`} className="flex justify-between text-sm">
                     <div className="flex-1">
-                      <p className="font-medium">{item.product.metadata.product_name}</p>
+                      <p className="font-medium">{item.name}</p>
                       <p className="text-gray-500">
                         Qty: {item.quantity} {item.size ? `• Size: ${item.size}` : ''}
                       </p>
                     </div>
                     <p className="font-medium ml-4">
-                      ${(item.product.metadata.price * item.quantity).toFixed(2)}
+                      ${(item.price * item.quantity).toFixed(2)}
                     </p>
                   </div>
                 ))}
@@ -314,7 +312,7 @@ export default function CheckoutPage() {
               <div className="space-y-3 border-t pt-4">
                 <div className="flex justify-between text-gray-600">
                   <span>Subtotal</span>
-                  <span>${cart.total.toFixed(2)}</span>
+                  <span>${totalPrice.toFixed(2)}</span>
                 </div>
                 <div className="flex justify-between text-gray-600">
                   <span>Shipping</span>
@@ -322,11 +320,11 @@ export default function CheckoutPage() {
                 </div>
                 <div className="flex justify-between text-gray-600">
                   <span>Tax</span>
-                  <span>${(cart.total * 0.08).toFixed(2)}</span>
+                  <span>${(totalPrice * 0.08).toFixed(2)}</span>
                 </div>
                 <div className="border-t pt-3 flex justify-between text-lg font-bold">
                   <span>Total</span>
-                  <span className="text-blue-600">${(cart.total * 1.08).toFixed(2)}</span>
+                  <span className="text-blue-600">${(totalPrice * 1.08).toFixed(2)}</span>
                 </div>
               </div>
             </div>
