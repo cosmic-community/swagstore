@@ -10,8 +10,9 @@ export default function ExitIntentPopup() {
   const { cart } = useCart()
 
   useEffect(() => {
+    // Fixed: Access cart.items.length instead of cart.length
     // Only show if user has items in cart
-    if (cart.length === 0) return
+    if (cart.items.length === 0) return
     
     // Check if already shown in this session
     if (sessionStorage.getItem('exitIntentShown')) return
@@ -30,7 +31,7 @@ export default function ExitIntentPopup() {
     return () => {
       document.removeEventListener('mouseleave', handleMouseLeave)
     }
-  }, [cart.length, hasShown])
+  }, [cart.items.length, hasShown])
 
   if (!showPopup) return null
 
@@ -57,7 +58,7 @@ export default function ExitIntentPopup() {
             Wait! Don't Leave Yet
           </h2>
           <p className="text-gray-600 mb-6">
-            You have {cart.length} {cart.length === 1 ? 'item' : 'items'} in your cart. 
+            You have {cart.items.length} {cart.items.length === 1 ? 'item' : 'items'} in your cart. 
             Complete your order now and get <span className="font-bold text-blue-600">{discount}% OFF</span>!
           </p>
           <div className="space-y-3">

@@ -14,9 +14,9 @@ export default async function Home() {
     getHomepageSettings()
   ])
 
-  // Get featured products
+  // Get featured products - Fixed: Added explicit type for parameter 'p'
   const featuredProducts = products
-    .filter(p => p.metadata.featured)
+    .filter((p: Product) => p.metadata.featured)
     .slice(0, 4) as Product[]
 
   // If no featured products, show first 4

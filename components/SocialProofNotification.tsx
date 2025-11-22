@@ -25,8 +25,12 @@ export default function SocialProofNotification() {
     let currentIndex = 0
     
     const showNextPurchase = () => {
-      setCurrentPurchase(recentPurchases[currentIndex])
-      setIsVisible(true)
+      // Fixed: Handle undefined by providing fallback
+      const purchase = recentPurchases[currentIndex]
+      if (purchase) {
+        setCurrentPurchase(purchase)
+        setIsVisible(true)
+      }
       
       // Hide after 5 seconds
       setTimeout(() => {
