@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
 import "./globals.css";
 import { CartProvider } from "@/contexts/CartContext";
 import { AuthProvider } from "@/contexts/AuthContext";
@@ -11,22 +10,20 @@ import ExitIntentPopup from "@/components/ExitIntentPopup";
 import SocialProofNotification from "@/components/SocialProofNotification";
 import RecentlyViewedTracker from "@/components/RecentlyViewedTracker";
 
-const inter = Inter({ subsets: ["latin"] });
-
 export const metadata: Metadata = {
-  title: "SwagStore - Premium Merchandise",
-  description: "Your one-stop shop for premium swag and merchandise",
+  title: "SwagStore - Premium Swag & Merchandise",
+  description: "Discover premium swag and merchandise for your brand",
   icons: {
     icon: [
       {
-        url: "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🛍️</text></svg>",
-        type: "image/svg+xml",
+        url: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text y=".9em" font-size="90">🛍️</text></svg>',
+        type: 'image/svg+xml',
       },
     ],
   },
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: {
   children: React.ReactNode;
@@ -35,7 +32,7 @@ export default function RootLayout({
 
   return (
     <html lang="en">
-      <body className={inter.className}>
+      <body className="antialiased">
         <AuthProvider>
           <CartProvider>
             <div className="flex flex-col min-h-screen">
@@ -50,7 +47,6 @@ export default function RootLayout({
             <RecentlyViewedTracker />
           </CartProvider>
         </AuthProvider>
-        <script src="/dashboard-console-capture.js" async />
       </body>
     </html>
   );
