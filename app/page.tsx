@@ -1,26 +1,39 @@
-import { getProducts, getCollections, getFeaturedProducts } from '@/lib/cosmic'
+import { getProducts, getCollections, getFeaturedProducts, getHomepageSettings } from '@/lib/cosmic'
 import ProductCard from '@/components/ProductCard'
 import CollectionCard from '@/components/CollectionCard'
-import { Product, Collection } from '@/types'
+import { Product, Collection, HomepageSettings } from '@/types'
 
 export default async function Home() {
-  const [products, collections, featuredProducts] = await Promise.all([
+  const [products, collections, featuredProducts, homepageSettings] = await Promise.all([
     getProducts(),
     getCollections(),
-    getFeaturedProducts()
+    getFeaturedProducts(),
+    getHomepageSettings()
   ])
+
+  const settings = homepageSettings as HomepageSettings | null
+  const heroBackgroundImage = settings?.metadata?.hero_background_image?.imgix_url
+  const heroTitle = settings?.metadata?.hero_title || 'Premium Branded Merchandise'
+  const heroSubtitle = settings?.metadata?.hero_subtitle || 'Discover our collection of high-quality apparel and accessories'
 
   return (
     <div className="min-h-screen">
       {/* Hero Section */}
-      <section className="bg-gradient-to-r from-blue-600 to-blue-800 text-white py-20">
+      <section 
+        className="relative bg-gradient-to-r from-blue-600 to-blue-800 text-white py-20"
+        style={heroBackgroundImage ? {
+          backgroundImage: `linear-gradient(to right, rgba(37, 99, 235, 0.8), rgba(30, 64, 175, 0.8)), url(${heroBackgroundImage}?w=2000&h=800&fit=crop&auto=format,compress)`,
+          backgroundSize: 'cover',
+          backgroundPosition: 'center'
+        } : undefined}
+      >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center">
             <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold mb-6">
-              Premium Branded Merchandise
+              {heroTitle}
             </h1>
             <p className="text-xl sm:text-2xl mb-8 text-blue-100">
-              Discover our collection of high-quality apparel and accessories
+              {heroSubtitle}
             </p>
             <a
               href="#products"
