@@ -1,6 +1,6 @@
 import type { Metadata } from 'next'
 import './globals.css'
-import Header from '@/components/Header'
+import HeaderWrapper from '@/components/HeaderWrapper'
 import Footer from '@/components/Footer'
 import CosmicBadge from '@/components/CosmicBadge'
 import { CartProvider } from '@/contexts/CartContext'
@@ -32,7 +32,7 @@ export default function RootLayout({
       </head>
       <body>
         <CartProvider>
-          <Header />
+          <HeaderWrapper />
           <main className="min-h-screen">
             {children}
           </main>
