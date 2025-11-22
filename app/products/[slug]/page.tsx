@@ -7,6 +7,7 @@ import ReviewCard from '@/components/ReviewCard'
 import AddToCartButton from '@/components/AddToCartButton'
 import RelatedProducts from '@/components/RelatedProducts'
 import { Metadata } from 'next'
+import RecentlyViewedTracker from '@/components/RecentlyViewedTracker'
 
 interface ProductPageProps {
   params: Promise<{
@@ -33,7 +34,7 @@ export async function generateMetadata({ params }: ProductPageProps): Promise<Me
     openGraph: {
       title: product.metadata.product_name,
       description: product.metadata.description || `Shop ${product.metadata.product_name}`,
-      type: 'product',
+      type: 'website', // Changed: Fixed TypeScript error - 'product' is not a valid OpenGraph type
       images: primaryImage?.imgix_url ? [{
         url: `${primaryImage.imgix_url}?w=1200&h=630&fit=crop&auto=format,compress`,
       }] : undefined,
@@ -66,7 +67,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
   const isLowStock = product.metadata.stock_quantity !== undefined && product.metadata.stock_quantity < 10 && product.metadata.stock_quantity > 0
   const isInStock = product.metadata.stock_quantity === undefined || product.metadata.stock_quantity > 0
 
-  // JSON-LD Schema for SEO
+  // JSON-LD Schema for SEO - Enhanced with more details
   const productSchema = {
     "@context": "https://schema.org",
     "@type": "Product",
@@ -74,12 +75,17 @@ export default async function ProductPage({ params }: ProductPageProps) {
     "description": product.metadata.description,
     "image": primaryImage?.imgix_url,
     "sku": product.metadata.sku,
+    "brand": {
+      "@type": "Brand",
+      "name": "SwagStore"
+    },
     "offers": {
       "@type": "Offer",
       "price": product.metadata.price,
       "priceCurrency": "USD",
       "availability": isInStock ? "https://schema.org/InStock" : "https://schema.org/OutOfStock",
-      "url": `https://swagstore.com/products/${product.slug}`
+      "url": `https://swagstore.com/products/${product.slug}`,
+      "priceValidUntil": new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]
     },
     "aggregateRating": reviews.length > 0 ? {
       "@type": "AggregateRating",
@@ -94,6 +100,9 @@ export default async function ProductPage({ params }: ProductPageProps) {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(productSchema) }}
       />
+      
+      {/* Track recently viewed products for personalization */}
+      <RecentlyViewedTracker productId={product.id} productSlug={product.slug} />
       
       <div className="min-h-screen bg-gray-50 py-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
