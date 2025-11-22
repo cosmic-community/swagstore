@@ -77,6 +77,30 @@ export interface HomepageSettings extends CosmicObject {
   }
 }
 
+// About page type
+export interface AboutPage extends CosmicObject {
+  type: 'about-pages'
+  metadata: {
+    page_title: string
+    hero_image?: {
+      url: string
+      imgix_url: string
+    }
+    introduction: string
+    story_title?: string
+    story_content?: string
+    mission_statement?: string
+    values?: Array<{
+      title: string
+      description: string
+    }>
+    team_image?: {
+      url: string
+      imgix_url: string
+    }
+  }
+}
+
 // User type for authentication
 export interface User extends CosmicObject {
   type: 'users'
@@ -116,6 +140,10 @@ export function isReview(obj: CosmicObject): obj is Review {
 
 export function isHomepageSettings(obj: CosmicObject): obj is HomepageSettings {
   return obj.type === 'homepage-settings'
+}
+
+export function isAboutPage(obj: CosmicObject): obj is AboutPage {
+  return obj.type === 'about-pages'
 }
 
 export function isUser(obj: CosmicObject): obj is User {

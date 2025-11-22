@@ -168,6 +168,22 @@ export async function getHomepageSettings() {
   }
 }
 
+// Get about page (singleton)
+export async function getAboutPage() {
+  try {
+    const response = await cosmic.objects
+      .findOne({ type: 'about-pages', slug: 'about' })
+      .props(['id', 'title', 'slug', 'metadata'])
+    
+    return response.object
+  } catch (error) {
+    if (hasStatus(error) && error.status === 404) {
+      return null
+    }
+    throw new Error('Failed to fetch about page')
+  }
+}
+
 // User authentication functions
 
 // Get user by email
