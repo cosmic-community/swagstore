@@ -513,10 +513,10 @@ export async function getRelatedArticles(articleId: string, categoryId: string, 
         
         return { article, score }
       })
-      .filter(item => item.score > 0)
-      .sort((a, b) => b.score - a.score)
+      .filter((item: { article: any; score: number }) => item.score > 0)
+      .sort((a: { article: any; score: number }, b: { article: any; score: number }) => b.score - a.score)
     
-    return scoredArticles.slice(0, limit).map(item => item.article)
+    return scoredArticles.slice(0, limit).map((item: { article: any; score: number }) => item.article)
   } catch (error) {
     if (hasStatus(error) && error.status === 404) {
       return []
