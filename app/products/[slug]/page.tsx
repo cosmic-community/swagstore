@@ -3,6 +3,7 @@ import { getProduct, getProductReviews } from '@/lib/cosmic'
 import { Product, Review } from '@/types'
 import { notFound } from 'next/navigation'
 import ReviewCard from '@/components/ReviewCard'
+import AddToCartButton from '@/components/AddToCartButton'
 
 interface ProductPageProps {
   params: Promise<{
@@ -114,22 +115,6 @@ export default async function ProductPage({ params }: ProductPageProps) {
                 />
               )}
 
-              {product.metadata.sizes_available && product.metadata.sizes_available.length > 0 && (
-                <div>
-                  <h3 className="font-semibold mb-2">Available Sizes:</h3>
-                  <div className="flex gap-2">
-                    {product.metadata.sizes_available.map((size) => (
-                      <span
-                        key={size}
-                        className="px-4 py-2 border border-gray-300 rounded-lg font-medium"
-                      >
-                        {size}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-              )}
-
               {product.metadata.stock_quantity !== undefined && (
                 <div className="flex items-center gap-2">
                   <span className="font-semibold">Stock:</span>
@@ -140,6 +125,11 @@ export default async function ProductPage({ params }: ProductPageProps) {
                   </span>
                 </div>
               )}
+
+              {/* Add to Cart Section */}
+              <div className="border-t pt-6">
+                <AddToCartButton product={product} />
+              </div>
             </div>
           </div>
         </div>
