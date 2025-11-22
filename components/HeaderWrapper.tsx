@@ -1,7 +1,7 @@
 'use client'
 
-import { Header } from '@/components/Header'
+import Header from '@/components/Header'
 
-export function HeaderWrapper() {
+export default function HeaderWrapper() {
   return <Header />
 }

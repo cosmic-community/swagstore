@@ -6,6 +6,7 @@ import { User } from '@/types'
 export interface AuthContextType {
   user: User | null
   loading: boolean
+  isLoading: boolean // Changed: Added isLoading alias for consistency
   login: (email: string, password: string) => Promise<{ success: boolean; error?: string }>
   signup: (name: string, email: string, password: string) => Promise<{ success: boolean; error?: string }>
   logout: () => Promise<void>
@@ -99,7 +100,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }
 
   return (
-    <AuthContext.Provider value={{ user, loading, login, signup, logout, refreshUser }}>
+    <AuthContext.Provider value={{ user, loading, isLoading: loading, login, signup, logout, refreshUser }}>
       {children}
     </AuthContext.Provider>
   )

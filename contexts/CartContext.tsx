@@ -1,58 +1,108 @@
 'use client'
 
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react'
-import { Cart, CartItem, getCart, addToCart as addToCartUtil, removeFromCart as removeFromCartUtil, updateQuantity as updateQuantityUtil, clearCart as clearCartUtil, getCartItemCount } from '@/lib/cart'
-import { Product } from '@/types'
 
-interface CartContextType {
-  cart: Cart
+export interface CartItem {
+  id: string
+  name: string
+  price: number
+  quantity: number
+  image?: string
+  size?: string
+  slug: string
+}
+
+export interface CartContextType {
   items: CartItem[]
-  addToCart: (product: Product, quantity?: number, size?: string) => void
-  removeFromCart: (productId: string, size?: string) => void
-  updateQuantity: (productId: string, quantity: number, size?: string) => void
+  addToCart: (item: Omit<CartItem, 'quantity'> & { quantity?: number }) => void
+  removeFromCart: (id: string, size?: string) => void
+  updateQuantity: (id: string, quantity: number, size?: string) => void
   clearCart: () => void
-  itemCount: number
+  totalItems: number
+  totalPrice: number
 }
 
 const CartContext = createContext<CartContextType | undefined>(undefined)
 
 export function CartProvider({ children }: { children: ReactNode }) {
-  const [cart, setCart] = useState<Cart>({ items: [], total: 0 })
-  const [itemCount, setItemCount] = useState(0)
+  const [items, setItems] = useState<CartItem[]>([])
 
   // Load cart from localStorage on mount
   useEffect(() => {
-    const savedCart = getCart()
-    setCart(savedCart)
-    setItemCount(getCartItemCount(savedCart))
+    const savedCart = localStorage.getItem('cart')
+    if (savedCart) {
+      try {
+        setItems(JSON.parse(savedCart))
+      } catch (error) {
+        console.error('Failed to load cart:', error)
+      }
+    }
   }, [])
 
-  const addToCart = (product: Product, quantity: number = 1, size?: string) => {
-    const newCart = addToCartUtil(cart, product, quantity, size)
-    setCart(newCart)
-    setItemCount(getCartItemCount(newCart))
+  // Save cart to localStorage whenever it changes
+  useEffect(() => {
+    localStorage.setItem('cart', JSON.stringify(items))
+  }, [items])
+
+  const addToCart = (item: Omit<CartItem, 'quantity'> & { quantity?: number }) => {
+    setItems(currentItems => {
+      const existingItemIndex = currentItems.findIndex(
+        i => i.id === item.id && i.size === item.size
+      )
+
+      if (existingItemIndex > -1) {
+        const newItems = [...currentItems]
+        newItems[existingItemIndex] = {
+          ...newItems[existingItemIndex],
+          quantity: newItems[existingItemIndex].quantity + (item.quantity || 1)
+        }
+        return newItems
+      }
+
+      return [...currentItems, { ...item, quantity: item.quantity || 1 }]
+    })
   }
 
-  const removeFromCart = (productId: string, size?: string) => {
-    const newCart = removeFromCartUtil(cart, productId, size)
-    setCart(newCart)
-    setItemCount(getCartItemCount(newCart))
+  const removeFromCart = (id: string, size?: string) => {
+    setItems(currentItems =>
+      currentItems.filter(item => !(item.id === id && item.size === size))
+    )
   }
 
-  const updateQuantity = (productId: string, quantity: number, size?: string) => {
-    const newCart = updateQuantityUtil(cart, productId, quantity, size)
-    setCart(newCart)
-    setItemCount(getCartItemCount(newCart))
+  const updateQuantity = (id: string, quantity: number, size?: string) => {
+    if (quantity <= 0) {
+      removeFromCart(id, size)
+      return
+    }
+
+    setItems(currentItems =>
+      currentItems.map(item =>
+        item.id === id && item.size === size
+          ? { ...item, quantity }
+          : item
+      )
+    )
   }
 
   const clearCart = () => {
-    const newCart = clearCartUtil()
-    setCart(newCart)
-    setItemCount(0)
+    setItems([])
   }
 
+  const totalItems = items.reduce((sum, item) => sum + item.quantity, 0)
+  const totalPrice = items.reduce((sum, item) => sum + item.price * item.quantity, 0)
+
   return (
-    <CartContext.Provider value={{ cart, items: cart.items, addToCart, removeFromCart, updateQuantity, clearCart, itemCount }}>
+    <CartContext.Provider
+      value={{
+        items,
+        addToCart,
+        removeFromCart,
+        updateQuantity,
+        clearCart,
+        totalItems,
+        totalPrice
+      }}
+    >
       {children}
     </CartContext.Provider>
   )
