@@ -167,3 +167,92 @@ export async function getHomepageSettings() {
     throw new Error('Failed to fetch homepage settings')
   }
 }
+
+// User authentication functions
+
+// Get user by email
+export async function getUserByEmail(email: string) {
+  try {
+    const response = await cosmic.objects
+      .find({ 
+        type: 'users',
+        'metadata.email': email 
+      })
+      .props(['id', 'title', 'slug', 'metadata'])
+    
+    return response.objects[0] || null
+  } catch (error) {
+    if (hasStatus(error) && error.status === 404) {
+      return null
+    }
+    throw new Error('Failed to fetch user')
+  }
+}
+
+// Get user by ID
+export async function getUserById(userId: string) {
+  try {
+    const response = await cosmic.objects
+      .findOne({ 
+        type: 'users',
+        id: userId 
+      })
+      .props(['id', 'title', 'slug', 'metadata'])
+    
+    return response.object
+  } catch (error) {
+    if (hasStatus(error) && error.status === 404) {
+      return null
+    }
+    throw new Error('Failed to fetch user')
+  }
+}
+
+// Create a new user
+export async function createUser(name: string, email: string, passwordHash: string) {
+  try {
+    const response = await cosmic.objects.insertOne({
+      title: name,
+      type: 'users',
+      metadata: {
+        name,
+        email,
+        password_hash: passwordHash,
+        created_date: new Date().toISOString()
+      }
+    })
+    
+    return response.object
+  } catch (error) {
+    throw new Error('Failed to create user')
+  }
+}
+
+// Update user profile
+export async function updateUserProfile(userId: string, updates: {
+  name?: string
+  profile_image?: string
+}) {
+  try {
+    const response = await cosmic.objects.updateOne(userId, {
+      metadata: updates
+    })
+    
+    return response.object
+  } catch (error) {
+    throw new Error('Failed to update user profile')
+  }
+}
+
+// Update last login time
+export async function updateLastLogin(userId: string) {
+  try {
+    await cosmic.objects.updateOne(userId, {
+      metadata: {
+        last_login: new Date().toISOString()
+      }
+    })
+  } catch (error) {
+    console.error('Failed to update last login:', error)
+  }
+}
