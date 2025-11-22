@@ -22,7 +22,7 @@ export default async function Header() {
               Home
             </a>
             <a
-              href="/#products"
+              href="/products"
               className="text-gray-700 hover:text-blue-600 font-medium transition-colors"
             >
               Products
